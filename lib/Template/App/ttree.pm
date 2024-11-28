@@ -28,7 +28,7 @@ use strict;
 use warnings;
 use base 'Template::Base';
 
-our $VERSION = '2.91';
+our $VERSION = '2.92';
 
 use Template;
 use AppConfig qw( :expand );
@@ -265,12 +265,12 @@ sub run {
         ignore   => $ignore,
         libdir   => $libdir,
         link     => $link,
-        n_copy   => $n_copy,
-        n_link   => $n_link,
-        n_mkdir  => $n_mkdir,
-        n_proc   => $n_proc,
-        n_skip   => $n_skip,
-        n_unmod  => $n_unmod,
+        n_copy   => \$n_copy,
+        n_link   => \$n_link,
+        n_mkdir  => \$n_mkdir,
+        n_proc   => \$n_proc,
+        n_skip   => \$n_skip,
+        n_unmod  => \$n_unmod,
         preserve => $preserve,
         recurse  => $recurse,
         replace  => $replace,
@@ -374,7 +374,7 @@ sub process_tree {
             if ($path =~ /$check/) {
                 $self->emit_log( yellow(sprintf "  - %-32s (ignored, matches /$check/)\n", $path ) )
                     if $verbose > 1;
-                $n_skip++;
+                $$n_skip++;
                 next FILE;
             }
         }
@@ -395,7 +395,7 @@ sub process_tree {
                     # commented out by abw on 2000/12/04 - seems to raise a warning?
                     # chown($uid, $gid, $target) || warn "chown($target): $!\n";
 
-                    $n_mkdir++;
+                    $$n_mkdir++;
                     $self->emit_log( green( sprintf "  + %-32s (created target directory)\n", $path ) )
                         if $verbose;
                 }
@@ -403,7 +403,7 @@ sub process_tree {
                 $self->process_tree($path, $running_conf);
             }
             else {
-                $n_skip++;
+                $$n_skip++;
                 $self->emit_log( yellow(sprintf "  - %-32s (directory, not recursing)\n", $path ) )
                     if $verbose > 1;
             }
@@ -535,7 +535,7 @@ sub process_file {
         unless (grep { $filename =~ /$_/ } @$accept) {
             $self->emit_log( yellow( sprintf "  - %-32s (not accepted)\n", $file ) )
                 if $verbose > 1;
-            $n_skip++;
+            $$n_skip++;
             return;
         }
     }
@@ -560,7 +560,7 @@ sub process_file {
         if ($desttime >= $srctime) {
             $self->emit_log( yellow( sprintf "  - %-32s (not modified)\n", $file ) )
                 if $verbose > 1;
-            $n_unmod++;
+            $$n_unmod++;
             return;
         }
     }
@@ -577,7 +577,7 @@ sub process_file {
         }
 
         unless ($copy_file) {
-            $n_link++;
+            $$n_link++;
             $self->emit_log( green( sprintf "  > %-32s (linked, matches $check)\n", $file ) )
                 if $verbose;
             return;
@@ -586,7 +586,7 @@ sub process_file {
 
     # check against copy list
     if ($copy_file) {
-        $n_copy++;
+        $$n_copy++;
         unless ($dryrun) {
             copy($absfile, $dest) or die red("Could not copy ($absfile to $dest) : $!\n");
 
@@ -602,7 +602,7 @@ sub process_file {
         return;
     }
 
-    $n_proc++;
+    $$n_proc++;
 
     if ($verbose) {
         $self->emit_log( green( sprintf "  + %-32s", $file) );

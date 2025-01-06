@@ -190,6 +190,7 @@ Options:
    --template_module=MODULE Specify alternate Template module
    --while_max=INTEGER      Change '\$Template::Directive::WHILE_MAX' default
    --envvars                Set the 'env' variable to the environment (%ENV)
+   --expose_blocks          Make blocks visible as pseudo-files
 
 See 'perldoc tpage' for further information.  
 

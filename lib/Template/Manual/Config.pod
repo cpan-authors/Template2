@@ -565,6 +565,31 @@ The template processor will raise a file exception if it detects
 direct or indirect recursion into a template.  Setting this option to
 any true value will allow templates to include each other recursively.
 
+=head2 EXPOSE_BLOCKS
+
+The C<EXPOSE_BLOCKS> option is unset by default and will make C<BLOCK>s
+in templates visible as pseudo-files under the C<template name> virtual
+directory.
+
+This enables the L<fragment pattern|https://htmx.org/essays/template-fragments/>,
+allowing partial rendering of a template, or rendering of a named section of a 
+template.
+
+Given the following template file (named F<index.html>)
+
+	<html>
+		[% BLOCK frag %]
+			[% DEFAULT text="hello world" %]
+			<div>[% text | html %]</div>
+		[% END %]
+		[% PROCESS frag %]
+		[% PROCESS frag text="foo is the new bar" %]
+	</html>
+
+when processed as F<index.html> will output the 2 C<div>s wrapped in C<html> tags,
+but when processed as F<index.html/frag>, will output only the C<div> from the 
+F<frag> C<BLOCK>.
+		
 =head1 Template Variables
 
 =head2 VARIABLES

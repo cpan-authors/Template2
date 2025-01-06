@@ -1013,6 +1013,9 @@ Additional options to set Template Toolkit configuration items:
    --compile_dir=DIR        Directory for compiled template files
    --perl5lib=DIR           Specify additional Perl library directories
    --template_module=MODULE Specify alternate Template module
+   --expose_blocks          Make blocks visible as pseudo-files
+
+
 
 See 'perldoc ttree' for further information.
 

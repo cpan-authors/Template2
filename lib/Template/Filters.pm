@@ -753,7 +753,7 @@ are added to the standard filters which are available by default.
     $filters = Template::Filters->new({
         FILTERS => {
             'sfilt1' =>   \&static_filter,
-            'dfilt1' => [ \&dyanamic_filter_factory, 1 ],
+            'dfilt1' => [ \&dynamic_filter_factory, 1 ],
         },
     });
 

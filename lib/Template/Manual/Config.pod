@@ -1640,7 +1640,7 @@ reference and is assumed to be static.
         FILTERS => {
             'sfilt1' =>   \&static_filter,      # static
             'sfilt2' => [ \&static_filter, 0 ], # same as above
-            'dfilt1' => [ \&dyanamic_filter_factory, 1 ],
+            'dfilt1' => [ \&dynamic_filter_factory, 1 ],
         },
     });
 

@@ -7,7 +7,7 @@ package Template::App::ttree;
 # DESCRIPTION
 #   Script for processing all directory trees containing templates.
 #   Template files are processed and the output directed to the
-#   relvant file in an output tree.  The timestamps of the source and
+#   relevant file in an output tree.  The timestamps of the source and
 #   destination files can then be examined for future invocations
 #   to process only those files that have changed.  In other words,
 #   it's a lot like 'make' for templates.

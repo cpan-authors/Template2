@@ -711,7 +711,7 @@ sub _refresh {
                 if $self->{ DEBUG };
 
             ($data, $error) = $self->_load($slot->[ NAME ], $slot->[ DATA ]->{ name });
-            ($data, $error) = $self->_compile($data)
+            ($data, $error) = $self->_compile($data, $self->_compiled_filename($slot->[ NAME ]))
                 unless $error;
 
             if ($error) {

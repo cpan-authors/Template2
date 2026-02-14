@@ -120,6 +120,7 @@ t/fileline.t
 t/filter.t
 t/foreach.t
 t/format.t
+t/grammar-factory.t
 t/html.t
 t/image.t
 t/include.t
@@ -241,6 +242,7 @@ t/vmethods/text.t
 t/while.t
 t/wrap.t
 t/wrapper.t
+t/zz-grammar-factory-leak.t
 t/zz-plugin-cycle.t
 t/zz-plugin-leak-gh-213.t
 t/zz-plugin-leak-rt-46691.t

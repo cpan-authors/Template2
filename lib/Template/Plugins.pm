@@ -186,7 +186,7 @@ sub _load {
         $file =~ s|::|/|g;
         $self->debug("loading $module.pm (PLUGIN_NAME)")
             if $self->{ DEBUG };
-        $ok = eval { require "$file.pm" };
+        $ok = eval { $module->isa($PLUGIN_BASE) or require "$file.pm" };
         $error = $@;
     }
     else {
@@ -200,7 +200,7 @@ sub _load {
             $self->debug("loading $file.pm (PLUGIN_BASE)")
                 if $self->{ DEBUG };
 
-            $ok = eval { require "$file.pm" };
+            $ok = eval { $pkg->isa($PLUGIN_BASE) or require "$file.pm" };
             last unless $@;
 
             $error .= "$@\n"

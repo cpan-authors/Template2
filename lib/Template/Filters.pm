@@ -521,8 +521,9 @@ sub truncate_filter_factory {
     $len  = $TRUNCATE_LENGTH unless defined $len;
     $char = $TRUNCATE_ADDON  unless defined $char;
 
-    # Length of char is the minimum length
-    my $lchar = length $char;
+    # Calculate visual length of the addon, treating HTML character entity
+    # references (e.g. &hellip; &#8230; &#x2026;) as single characters
+    my $lchar = _visual_length($char);
     if ($len < $lchar) {
         $char  = substr($char, 0, $len);
         $lchar = $len;
@@ -530,11 +531,45 @@ sub truncate_filter_factory {
 
     return sub {
         my $text = shift;
-        return $text if length $text <= $len;
-        return substr($text, 0, $len - $lchar) . $char;
-
-
+        return $text if _visual_length($text) <= $len;
+        return _truncate_visual($text, $len - $lchar) . $char;
     }
+}
+
+
+#------------------------------------------------------------------------
+# _visual_length($str)
+#
+# Returns the "visual" length of a string, counting each HTML character
+# entity reference (&name; &#digits; &#xhex;) as a single character.
+#------------------------------------------------------------------------
+
+sub _visual_length {
+    my $str = shift;
+    (my $copy = $str) =~ s/&(?:[a-zA-Z][a-zA-Z0-9]*|#[0-9]+|#x[0-9a-fA-F]+);/_/g;
+    return length $copy;
+}
+
+
+#------------------------------------------------------------------------
+# _truncate_visual($str, $maxlen)
+#
+# Truncates $str to at most $maxlen visual characters, treating HTML
+# character entity references as single characters and never splitting
+# one in the middle.
+#------------------------------------------------------------------------
+
+sub _truncate_visual {
+    my ($str, $maxlen) = @_;
+    my $result = '';
+    my $vlen   = 0;
+
+    while ($str =~ /\G(&(?:[a-zA-Z][a-zA-Z0-9]*|#[0-9]+|#x[0-9a-fA-F]+);|.)/gs) {
+        last if $vlen >= $maxlen;
+        $result .= $1;
+        $vlen++;
+    }
+    return $result;
 }
 
 

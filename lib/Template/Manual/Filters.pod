@@ -319,14 +319,19 @@ Output:
 If you want to use something other than 'C<...>' you can pass that as a
 second argument.
 
-    [% FILTER truncate(26, '&hellip;') %]
+    [% FILTER truncate(27, '&hellip;') %]
     I have much to say on this matter that has previously
     been said on more than one occasion.
     [% END %]
 
 Output:
 
-    I have much to say&hellip;
+    I have much to say on this&hellip;
+
+HTML character entity references (e.g. C<&hellip;>, C<&#8230;>, C<&#x2026;>)
+in the suffix are counted by their visual width (one character each), not by
+their string length.  Entity references in the input text are also treated as
+single characters, so they will not be split in the middle.
 
 =head1 repeat(iterations)
 

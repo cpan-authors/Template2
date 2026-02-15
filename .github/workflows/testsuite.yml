@@ -8,6 +8,10 @@ on:
       - "*"
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ubuntu:
     env:
@@ -19,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: perl -V
       - name: install dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@v1.9
         with:
           cpanfile: "cpanfile"
       - name: Makefile.PL
@@ -63,10 +67,10 @@ jobs:
     container: perldocker/perl-tester:${{ matrix.perl-version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: perl -V
       - name: install dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@v1.9
         with:
           sudo: false
           cpanfile: "cpanfile"
@@ -74,6 +78,34 @@ jobs:
         run: perl Makefile.PL TT_XS_DEFAULT=${{ matrix.XS }} TT_XS_ENABLE=${{ matrix.XS }} TT_QUIET=n TT_ACCEPT=y
       - run: make test
       - run: make install
+
+  macOS:
+    needs: [ubuntu]
+    env:
+      PERL_USE_UNSAFE_INC: 0
+      AUTHOR_TESTING: 1
+      AUTOMATED_TESTING: 1
+      RELEASE_TESTING: 1
+
+    runs-on: macOS-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        XS: [y, n]
+
+    steps:
+      - uses: actions/checkout@v6
+      - run: perl -V
+      - name: install dependencies
+        uses: perl-actions/install-with-cpm@v1.9
+        with:
+          sudo: true
+          cpanfile: "cpanfile"
+      - name: Makefile.PL
+        run: perl Makefile.PL TT_XS_DEFAULT=${{ matrix.XS }} TT_XS_ENABLE=${{ matrix.XS }} TT_QUIET=n TT_ACCEPT=y
+      - run: make test
+      - run: sudo make install
 
   plugins:
     needs: [ubuntu,linux]
@@ -118,7 +150,7 @@ jobs:
     container: perl:${{ matrix.perl-version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: perl -V
       - name: Install cpm
         run: cpanm -n App::cpm Carton::Snapshot

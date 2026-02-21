@@ -297,8 +297,9 @@ sub url_filter {
 #------------------------------------------------------------------------
 # html_filter()                                         [% FILTER html %]
 #
-# Convert any '<', '>' or '&' characters to the HTML equivalents, '&lt;',
-# '&gt;' and '&amp;', respectively.
+# Convert any '<', '>', '&', '"' or "'" characters to the HTML
+# equivalents, '&lt;', '&gt;', '&amp;', '&quot;' and '&#39;',
+# respectively.
 #------------------------------------------------------------------------
 
 sub html_filter {
@@ -308,6 +309,7 @@ sub html_filter {
         s/</&lt;/g;
         s/>/&gt;/g;
         s/"/&quot;/g;
+        s/'/&#39;/g;
     }
     return $text;
 }
@@ -316,8 +318,8 @@ sub html_filter {
 #------------------------------------------------------------------------
 # xml_filter()                                           [% FILTER xml %]
 #
-# Same as the html filter, but adds the conversion of ' to &apos; which
-# is native to XML.
+# Same as the html filter, but uses &apos; for single quotes (the XML
+# named entity) instead of &#39; (the numeric reference used for HTML).
 #------------------------------------------------------------------------
 
 sub xml_filter {

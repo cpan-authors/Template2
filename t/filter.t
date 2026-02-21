@@ -291,7 +291,13 @@ The &lt;cat&gt; sat on the &lt;mat&gt;
 "It isn't what I expected", he replied.
 [% END %]
 -- expect --
-&quot;It isn't what I expected&quot;, he replied.
+&quot;It isn&#39;t what I expected&quot;, he replied.
+
+-- test --
+-- name html filter single-quoted attributes --
+[% val = "it's <dangerous> & \"broken\""; val FILTER html %]
+-- expect --
+it&#39;s &lt;dangerous&gt; &amp; &quot;broken&quot;
 
 -- test --
 [% FILTER xml %]

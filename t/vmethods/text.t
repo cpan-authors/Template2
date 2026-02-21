@@ -215,7 +215,7 @@ Tim O'Reilly said \"Oh really?\"
 -- name text.html --
 [% markup.html %]
 -- expect --
-a &lt; b &gt; &amp; c &quot;d&quot; 'e'
+a &lt; b &gt; &amp; c &quot;d&quot; &#39;e&#39;
 
 -- test --
 -- name text.xml --

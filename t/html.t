@@ -105,6 +105,13 @@ my%20file.html
 if (a &lt; b &amp;&amp; c &gt; d) ...
 
 -- test --
+-- name escape single quotes --
+[% USE HTML -%]
+[% HTML.escape("it's a <tag attr='val'>test") %]
+-- expect --
+it&#39;s a &lt;tag attr=&#39;val&#39;&gt;test
+
+-- test --
 -- name sorted --
 [% USE HTML(sorted=1) -%]
 [% HTML.element(table => { border => 1, cellpadding => 2 }) %]

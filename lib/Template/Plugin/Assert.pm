@@ -84,7 +84,7 @@ sub AUTOLOAD {
     $item =~ s/.*:://;
     return if $item eq 'DESTROY';
 
-    my $value = $stash->dotop($stash, $item, \@args);
+    my $value = $stash->dotop($this, $item, \@args);
 
     if (! defined $value) {
         die $EXCEPTION->new( assert => "undefined value for $item" );

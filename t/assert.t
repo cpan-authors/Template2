@@ -40,12 +40,15 @@ sub nil {
 
 package main;
 
-my $vars = { 
+my $vars = {
     object => Template::Test::Object->new,
     hash   => { foo => 10, bar => undef },
     list   => [ undef ],
     subref => sub { return undef },
     nothing => undef,
+    nested => { name => 'hello', deep => { value => 42 } },
+    items  => [ 10, 20, 30 ],
+    name   => 'world',
 };
 
 test_expect(\*DATA, undef, $vars);
@@ -105,11 +108,56 @@ assert error - undefined value for first
 -- expect --
 assert error - undefined value for nothing
 
--- test -- 
+-- test --
 [% USE assert;
    TRY; assert.subref; CATCH; error; END;
 %]
 -- expect --
 assert error - undefined value for subref
 
+#------------------------------------------------------------------------
+# GH #300: assert should pass through defined values without error
+#------------------------------------------------------------------------
+
+-- test --
+[% USE assert;
+   hash.assert.foo;
+%]
+-- expect --
+10
+
+-- test --
+[% USE assert;
+   nested.assert.name;
+%]
+-- expect --
+hello
+
+-- test --
+[% USE assert;
+   nested.assert.deep.value;
+%]
+-- expect --
+42
+
+-- test --
+[% USE assert;
+   items.assert.size;
+%]
+-- expect --
+3
+
+-- test --
+[% USE assert;
+   items.assert.first;
+%]
+-- expect --
+10
+
+-- test --
+[% USE assert;
+   assert.name;
+%]
+-- expect --
+world
 

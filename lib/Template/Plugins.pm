@@ -183,7 +183,6 @@ sub _load {
         # plugin module name is explicitly stated in PLUGIN_NAME
         $pkg = $module;
         ($file = $module) =~ s|::|/|g;
-        $file =~ s|::|/|g;
         $self->debug("loading $module.pm (PLUGIN_NAME)")
             if $self->{ DEBUG };
         $ok = eval { $module->isa($PLUGIN_BASE) or require "$file.pm" };

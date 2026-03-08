@@ -579,7 +579,7 @@ $label:
     while (($expr) && --\$_tt_failsafe >= 0) {
 $block
     }
-    die "WHILE loop terminated (> $WHILE_MAX iterations)\\n"
+    \$context->throw('while', "WHILE loop terminated (> $WHILE_MAX iterations)")
         if \$_tt_failsafe < 0;
 };
 EOF

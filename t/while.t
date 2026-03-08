@@ -113,6 +113,30 @@ error: [% error.info %]
 ....................................................................................................
 error: WHILE loop terminated (> 100 iterations)
 
+-- test --
+-- name WHILE exception has type 'while' --
+[% TRY %]
+[% WHILE true %].[% END %]
+[% CATCH while +%]
+caught while: [% error.info %]
+[% END %]
+-- expect --
+....................................................................................................
+caught while: WHILE loop terminated (> 100 iterations)
+
+-- test --
+-- name WHILE exception type is 'while' not generic --
+[% TRY %]
+[% WHILE true %].[% END %]
+[% CATCH foo %]
+wrong type
+[% CATCH while +%]
+right type: [% error.type %]
+[% END %]
+-- expect --
+....................................................................................................
+right type: while
+
 
 -- test --
 [% reset %]

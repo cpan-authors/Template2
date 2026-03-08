@@ -456,7 +456,7 @@ sub _dotop {
         }
         # ugly hack: only allow import vmeth to be called on root stash
         elsif (($value = $HASH_OPS->{ $item })
-            && ! $atroot || $item eq 'import') {
+            && (! $atroot || $item eq 'import')) {
             @result = &$value($root, @$args);               ## @result
         }
         elsif ( ref $item eq 'ARRAY' ) {

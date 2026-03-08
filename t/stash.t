@@ -402,3 +402,16 @@ PASS: stringified from GetNumbersome
 [% cmp_ol.hello %]
 -- expect --
 Hello
+
+# Verify that hash vmethods (e.g. keys, size) work on non-root hashes
+# and that 'import' works on root stash (operator precedence fix)
+
+-- test --
+[% myhash = { a => 1, b => 2 }; myhash.keys.sort.join(', ') %]
+-- expect --
+a, b
+
+-- test --
+[% myhash = { x => 10 }; CALL myhash.import({ y => 20 }); myhash.keys.sort.join(', ') %]
+-- expect --
+x, y

@@ -626,10 +626,14 @@ sub tokenise_directive {
                 \2                       # match opening quote
             |
                 # an unquoted number matches in $4
-                (-?\d+(?:\.\d+)?)       # numbers
+                # only treat leading - as unary when not after a
+                # word char, close-paren, or close-bracket (else
+                # it is a subtraction operator, e.g. x-2)
+                ((?:(?<![)\]\w])-)?  \d+(?:\.\d+)?)   # numbers
             |
-                # filename matches in $5
-                ( \/?\w+(?:(?:\/|::?)\w*)+ | \/\w+)
+                # filename matches in $5 — path segments after
+                # the separator must start with a letter
+                ( \/?\w+(?:(?:\/|::?)[a-zA-Z_]\w*)+ | \/[a-zA-Z_]\w+)
             |
                 # an identifier matches in $6
                 (\w+)                    # variable identifier

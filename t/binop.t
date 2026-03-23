@@ -327,7 +327,19 @@ mega: 106
 3 3
 
 
--- stop -- 
+-- test --
+-- name subtraction vs negative literal (GH #315) --
+[% x = 10; y = x - 3 %][% y +%]
+[% z = -5 %][% z +%]
+[% a = x + -2 %][% a +%]
+[% b = x - -2 %][% b %]
+-- expect --
+7
+-5
+8
+12
+
+-- stop --
 # this is for testing the lt operator which isn't enabled by default.
 -- test --
 [% IF 'one' lt 'two' -%]

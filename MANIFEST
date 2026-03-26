@@ -35,6 +35,7 @@ lib/Template/Manual/Variables.pod
 lib/Template/Manual/Views.pod
 lib/Template/Manual/VMethods.pod
 lib/Template/Modules.pod
+lib/Template/Map.pm
 lib/Template/Namespace/Constants.pm
 lib/Template/Parser.pm
 lib/Template/Plugin.pm
@@ -49,6 +50,7 @@ lib/Template/Plugin/Format.pm
 lib/Template/Plugin/HTML.pm
 lib/Template/Plugin/Image.pm
 lib/Template/Plugin/Iterator.pm
+lib/Template/Plugin/List.pm
 lib/Template/Plugin/Math.pm
 lib/Template/Plugin/Pod.pm
 lib/Template/Plugin/Procedural.pm
@@ -138,6 +140,7 @@ t/lib/Template/Plugin/Simple.pm
 t/list.t
 t/load_order_vmethods_stash.t
 t/macro.t
+t/map.t
 t/math.t
 t/math_rand.t
 t/meta.t

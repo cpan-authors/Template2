@@ -159,6 +159,12 @@ jobs:
       - name: Makefile.PL
         run: perl Makefile.PL TT_XS_DEFAULT=${{ matrix.XS }} TT_XS_ENABLE=${{ matrix.XS }} TT_QUIET=n TT_ACCEPT=y
       - run: make install
+      # Pre-install XML dependencies without tests to avoid upstream test failures
+      # on modern Perl (XML::Simple, XML::DOM, XML::XPath fail their own test
+      # suites on Perl 5.36+ due to IO::File/XML::Parser incompatibilities).
+      - name: pre-install xml plugin dependencies
+        if: matrix.plugin == 'Template::Plugin::XML'
+        run: cpm install -g --no-test XML::Simple XML::DOM XML::XPath
       # Try to install multiple plugins to confirm we do not break them
       - name: install plugin
         run: cpm install -g --test --show-build-log-on-failure ${{ matrix.plugin }}

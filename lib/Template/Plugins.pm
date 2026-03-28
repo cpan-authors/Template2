@@ -119,7 +119,6 @@ sub fetch {
         }
     };
     if ($error = $@) {
-    # chomp $error;
     return $self->{ TOLERANT }
            ? (undef,  Template::Constants::STATUS_DECLINED)
            : ($error, Template::Constants::STATUS_ERROR);
@@ -203,7 +202,7 @@ sub _load {
             last unless $@;
 
             $error .= "$@\n"
-                unless ($@ =~ /^Can\'t locate $file\.pm/);
+                unless ($@ =~ /^Can't locate \Q$file\E\.pm/);
         }
     }
 

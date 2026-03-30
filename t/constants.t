@@ -134,7 +134,18 @@ my $tt3 = Template->new({
 });
 ok( $tt3, 'created tt3' );
 
-my $engines = [ tt1 => $tt1, tt2 => $tt2, tt3 => $tt3 ];
+my $const4 = {
+    items  => [10, 20, 30],
+    nested => [[1, 2], [3, 4]],
+    lookup => { x => 'alpha', y => 'beta' },
+};
+
+my $tt4 = Template->new({
+    CONSTANTS => $const4,
+});
+ok( $tt4, 'created tt4' );
+
+my $engines = [ tt1 => $tt1, tt2 => $tt2, tt3 => $tt3, tt4 => $tt4 ];
 
 my $vars = {
     col => {
@@ -220,3 +231,38 @@ c: [% const.author %]
 a: abw
 b: 
 c: abw
+
+-- test --
+-- use tt4 --
+-- name iterate constant array (GH #207) --
+[% FOREACH item IN constants.items %]([% item %])[% END %]
+-- expect --
+(10)(20)(30)
+
+-- test --
+-- use tt4 --
+-- name constant array size --
+[% constants.items.size %]
+-- expect --
+3
+
+-- test --
+-- use tt4 --
+-- name iterate constant hash keys --
+[% FOREACH key IN constants.lookup.keys.sort %]([% key %])[% END %]
+-- expect --
+(x)(y)
+
+-- test --
+-- use tt4 --
+-- name constant hash values via key --
+[% constants.lookup.x %]/[% constants.lookup.y %]
+-- expect --
+alpha/beta
+
+-- test --
+-- use tt4 --
+-- name constant nested array --
+[% FOREACH pair IN constants.nested; pair.join(':'); " " IF !loop.last; END %]
+-- expect --
+1:2 3:4

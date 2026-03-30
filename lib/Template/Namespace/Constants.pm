@@ -80,10 +80,21 @@ sub ident {
 
     $result = $self->{ STASH }->get($ident);
 
-    if (! length $result || ref $result) {
-        my $reason = length $result ? 'reference' : 'no result';
-        $self->DEBUG(" * deferred ($reason)\n") if $DEBUG;
+    if (! length $result) {
+        $self->DEBUG(" * deferred (no result)\n") if $DEBUG;
         return Template::Directive->ident(\@save);
+    }
+
+    if (ref $result) {
+        require Data::Dumper;
+        local $Data::Dumper::Terse    = 1;
+        local $Data::Dumper::Indent   = 0;
+        local $Data::Dumper::Sortkeys = 1;
+        my $code = Data::Dumper::Dumper($result);
+
+        $self->DEBUG(" * resolved ref => $code\n") if $DEBUG;
+
+        return $code;
     }
 
     $result =~ s/'/\\'/g;

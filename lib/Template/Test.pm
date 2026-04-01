@@ -5,8 +5,8 @@
 # DESCRIPTION
 #   Module defining a test harness which processes template input and
 #   then compares the output against pre-define expected output.
-#   Generates test output compatible with Test::Harness.  This was
-#   originally the t/texpect.pl script.
+#   Uses Test::Builder for TAP output, compatible with Test::Harness
+#   and subtests.  This was originally the t/texpect.pl script.
 #
 # AUTHOR
 #   Andy Wardley   <abw@wardley.org>
@@ -25,6 +25,7 @@ use strict;
 use warnings;
 use Template;
 use Exporter;
+use Test::Builder;
 
 use constant MSWin32 => $^O eq 'MSWin32';
 
@@ -48,8 +49,9 @@ our ($loaded, %callsign);
 # is true to what we expect
 $Template::BINMODE = (MSWin32) ? 1 : 0;
 
+my $TB = Test::Builder->new;
 my @results = ();
-my ($ntests, $ok_count);
+my $plan_declared = 0;
 *is = \&match;
 
 END {
@@ -70,16 +72,24 @@ END {
 #------------------------------------------------------------------------
 
 sub ntests {
-    $ntests = shift;
+    my $n = shift;
     # add any pre-declared extra tests, or pre-stored test @results, to
     # the grand total of tests
-    $ntests += $EXTRA + scalar @results;
-    $ok_count = 1;
-    print $ntests ? "1..$ntests\n" : "1..$ntests # skip $REASON\n";
+    $n += $EXTRA + scalar @results;
+
+    if ($n) {
+        $TB->plan(tests => $n);
+    }
+    else {
+        $TB->skip_all($REASON);
+    }
+    $plan_declared = 1;
+
     # flush cached results
     foreach my $pre_test (@results) {
         ok(@$pre_test);
     }
+    @results = ();
 }
 
 
@@ -95,19 +105,13 @@ sub ok {
     my ($ok, $msg) = @_;
 
     # cache results if ntests() not yet called
-    unless ($ok_count) {
+    unless ($plan_declared) {
         push(@results, [ $ok, $msg ]);
         return $ok;
     }
 
-    $msg = defined $msg ? " - $msg" : '';
-    if ($ok) {
-        print "ok ", $ok_count++, "$msg\n";
-    }
-    else {
-        print STDERR "FAILED $ok_count: $msg\n" if defined $msg;
-        print "not ok ", $ok_count++, "$msg\n";
-    }
+    $TB->ok($ok, $msg);
+    return $ok;
 }
 
 
@@ -136,7 +140,6 @@ sub assert {
 
 sub match {
     my ($result, $expect, $msg) = @_;
-    my $count = $ok_count ? $ok_count : scalar @results + 1;
 
     # force stringification of $result to avoid 'no eq method' overload errors
     $result = "$result" if ref $result;
@@ -145,7 +148,8 @@ sub match {
         return ok(1, $msg);
     }
     else {
-        print STDERR "FAILED $count:\n  expect: [$expect]\n  result: [$result]\n";
+        my $count = $plan_declared ? $TB->current_test + 1 : scalar @results + 1;
+        $TB->diag("FAILED $count:\n  expect: [$expect]\n  result: [$result]");
         return ok(0, $msg);
     }
 }
@@ -159,7 +163,7 @@ sub match {
 
 sub flush {
     ntests(0)
-    unless $ok_count || $NO_FLUSH;
+    unless $plan_declared || $NO_FLUSH;
 }
 
 
@@ -173,7 +177,8 @@ sub flush {
 
 sub skip_all {
     $REASON = join('', @_);
-    exit(0);
+    $NO_FLUSH = 1;
+    $TB->skip_all($REASON);
 }
 
 
@@ -348,7 +353,7 @@ sub test_expect {
 
         $match = ($expect eq $output) ? 1 : 0;
         if (! $match || $DEBUG) {
-            print "MATCH FAILED\n"
+            $TB->diag("MATCH FAILED")
                 unless $match;
 
             my ($copyi, $copye, $copyo) = ($input, $expect, $output);
@@ -357,10 +362,10 @@ sub test_expect {
                     s/\n/\\n/g;
                 }
             }
-            printf(
-                " input: [%s]\nexpect: [%s]\noutput: [%s]\n",
+            $TB->diag(sprintf(
+                " input: [%s]\nexpect: [%s]\noutput: [%s]",
                 $copyi, $copye, $copyo
-            );
+            ));
         }
 
         my $testprefix = $name;
@@ -398,8 +403,8 @@ sub callsign {
 sub banner {
     return unless $DEBUG;
     my $text = join('', @_);
-    my $count = $ok_count ? $ok_count - 1 : scalar @results;
-    print "-" x 72, "\n$text ($count tests completed)\n", "-" x 72, "\n";
+    my $count = $TB->current_test;
+    $TB->note("-" x 72 . "\n$text ($count tests completed)\n" . "-" x 72);
 }
 
 
@@ -461,6 +466,9 @@ The C<Template::Test> module defines the L<test_expect()> and other related
 subroutines which can be used to automate test scripts for the
 Template Toolkit.  See the numerous tests in the F<t> sub-directory of
 the distribution for examples of use.
+
+Template::Test uses L<Test::Builder> internally, making it compatible with
+L<Test::More>, subtests, and other Test::Builder-based modules.
 
 =head1 PACKAGE SUBROUTINES
 
@@ -690,8 +698,9 @@ was cleaned up to became the C<Template::Test> module some time around
 version 0.29.  It underwent further cosmetic surgery for version 2.00
 but still retains some remarkable rear-end resemblances.
 
-Since then the C<Test::More> and related modules have appeared on CPAN
-making this module mostly, but not entirely, redundant.
+Since version 3.200, this module uses L<Test::Builder> internally,
+making it compatible with L<Test::More>, subtests, and other
+Test::Builder-based test infrastructure.
 
 =head1 BUGS / KNOWN "FEATURES"
 
@@ -715,7 +724,7 @@ modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-L<Template>
+L<Template>, L<Test::Builder>
 
 =cut
 

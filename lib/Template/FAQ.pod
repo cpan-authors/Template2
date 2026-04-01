@@ -40,8 +40,6 @@ If you want to set C<a = b> only if C<c> is true, then do this instead:
 The explicit C<SET> keyword gives the parser the clue it needs to do the
 right thing.
 
-NOTE: this will be fixed in TT3
-
 =head2 If I'm using TT to write out a TT template, is there a good way to escape [% and %]?
 
 You can do something like this:

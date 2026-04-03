@@ -233,3 +233,52 @@ romeo
 [% ids.grep(undef).join(', ') %]
 -- expect --
 
+#------------------------------------------------------------------------
+# Expressions inside list constructors (GH #135)
+#------------------------------------------------------------------------
+-- test --
+[% x = ['foo' _ 'bar']; x.0 %]
+-- expect --
+foobar
+
+-- test --
+[% x = [1 + 2]; x.0 %]
+-- expect --
+3
+
+-- test --
+[% x = [1 + 2, 'a' _ 'b', 3 * 4]; x.join(', ') %]
+-- expect --
+3, ab, 12
+
+-- test --
+[% x = 10; y = [x / 2]; y.0 %]
+-- expect --
+5
+
+-- test --
+[% x = [5 > 3, 10 > 20]; x.0 %]
+-- expect --
+1
+
+-- test --
+[% x = [1 ? 'yes' : 'no']; x.0 %]
+-- expect --
+yes
+
+-- test --
+[% a = 3; b = 7; x = [a + b, a * b]; x.join(', ') %]
+-- expect --
+10, 21
+
+-- test --
+[% x = [!0]; x.0 %]
+-- expect --
+1
+
+-- test --
+[% x = [0 OR 5, 1 AND 0]; x.join(', ') %]
+-- expect --
+5, 0
+
+

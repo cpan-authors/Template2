@@ -165,12 +165,13 @@ sub process {
         my $block = $self->{ _BLOCK };
         $output = &$block($context);
     };
+    my $e = $@; # Fragile, capture now
     $self->{ _HOT } = 0;
 
     $context->leave();
 
-    die $context->catch($@)
-        if $@;
+    die $context->catch($e)
+        if $e;
 
     return $output;
 }

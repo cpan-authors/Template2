@@ -109,7 +109,15 @@ atomexpr:   expr                    { $factory->get($_[1])                }
 atomdir:    GET expr                { $factory->get($_[2])                }
         |   CALL expr               { $factory->call($_[2])               }
         |   SET setlist             { $factory->set($_[2])                }
+        |   SET ident ASSIGN expr FILTER lnameargs
+                                    { $factory->set(
+                                        [ $_[2], $factory->filter_expr(@_[6,4]) ]
+                                      )                                   }
         |   DEFAULT setlist         { $factory->default($_[2])            }
+        |   DEFAULT ident ASSIGN expr FILTER lnameargs
+                                    { $factory->default(
+                                        [ $_[2], $factory->filter_expr(@_[6,4]) ]
+                                      )                                   }
         |   INSERT nameargs         { $factory->insert($_[2])             }
         |   INCLUDE nameargs        { $factory->include($_[2])            }
         |   PROCESS nameargs        { $factory->process($_[2])            }

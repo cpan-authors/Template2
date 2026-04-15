@@ -111,3 +111,10 @@ subroutine called in array context 10 20
 [% USE scalar; scalar.subref(30, 40) %]
 -- expect --
 subroutine called in scalar context 30 40
+
+-- test --
+-- name nonexistent method throws proper exception --
+[% USE scalar -%]
+[% TRY; hashobj.scalar.nonexistent_method; CATCH; error; END %]
+-- expect --
+scalar error - no such method: nonexistent_method

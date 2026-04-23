@@ -25,6 +25,7 @@ use strict;
 use warnings;
 use base 'Template::Base';
 use Template::Constants;
+use Template::Exception;
 
 our $VERSION = '3.100';
 our $DEBUG   = 0 unless defined $DEBUG;
@@ -206,8 +207,14 @@ sub AUTOLOAD {
 
     $method =~ s/.*:://;
     return if $method eq 'DESTROY';
-#    my ($pkg, $file, $line) = caller();
-#    print STDERR "called $self->AUTOLOAD($method) from $file line $line\n";
+
+    # metadata items are read-only; throw an error if called with arguments
+    # (which indicates an assignment attempt via the stash)
+    if (@_) {
+        die Template::Exception->new('file',
+            "template metadata item '$method' is read-only");
+    }
+
     return $self->{ $method };
 }
 

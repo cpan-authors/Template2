@@ -143,6 +143,7 @@ t/outline_line.t
 t/output.t
 t/parser.t
 t/parser2.t
+t/plugin_list.t
 t/plugins.t
 t/plusfile.t
 t/pod.t

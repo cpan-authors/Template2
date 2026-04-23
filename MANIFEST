@@ -83,6 +83,7 @@ parser/Parser.yp
 parser/README
 parser/yc
 README.md
+SECURITY.md
 t/anycase.t
 t/args.t
 t/assert.t

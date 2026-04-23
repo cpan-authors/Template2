@@ -46,6 +46,7 @@ sub new {
     # first line of file should contain field definitions
     while (! $line || $line =~ /^#/) {
         $line = <FD>;
+        last unless defined $line;
         chomp $line;
         $line =~ s/\r$//;
     }

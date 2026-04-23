@@ -134,6 +134,24 @@ bIRD
 >The bird is the word<
 
 -- test --
+-- name text.trim non-mutating --
+[% SET padded = "  hello  " -%]
+>[% padded.trim %]<
+>[% padded %]<
+-- expect --
+>hello<
+>  hello  <
+
+-- test --
+-- name text.collapse non-mutating --
+[% SET padded = "  hello   world  " -%]
+>[% padded.collapse %]<
+>[% padded %]<
+-- expect --
+>hello world<
+>  hello   world  <
+
+-- test --
 -- name text.sort.join --
 [% string.sort.join %]
 -- expect --

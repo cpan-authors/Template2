@@ -361,6 +361,14 @@ sub undefined {
     my ($self, $ident, $args) = @_;
 
     if ($self->{ _STRICT }) {
+        # .defined must work on undefined values even in STRICT mode —
+        # it would be nonsensical to throw "undefined variable" when the
+        # user is explicitly testing whether a variable is defined (GH #170)
+        if (ref $ident eq 'ARRAY') {
+            my $last_item = $ident->[$#$ident - 1];
+            return '' if defined $last_item && $last_item eq 'defined';
+        }
+
         # Sorry, but we can't provide a sensible source file and line without
         # re-designing the whole architecture of TT (see TT3)
         die Template::Exception->new(

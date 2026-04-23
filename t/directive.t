@@ -116,6 +116,33 @@ b: [% b %]
 a: charlie
 b: delta
 
+-- test --
+-- name comment with nested tag pair (GH #151) --
+before[%# comment [% a %] end %]after
+-- expect --
+beforeafter
+
+-- test --
+-- name comment with multiple nested tags (GH #151) --
+before[%#
+    [% a %]
+    [% b %]
+%]after
+-- expect --
+beforeafter
+
+-- test --
+-- name comment with deeply nested tags (GH #151) --
+[%# [% [% nested %] %] %]hello
+-- expect --
+hello
+
+-- test --
+-- name comment with nested tags preserves surrounding directives (GH #151) --
+[% a %][%# [% b %] commented out %][% c %]
+-- expect --
+alphacharlie
+
 #------------------------------------------------------------------------
 # manual chomping
 #------------------------------------------------------------------------

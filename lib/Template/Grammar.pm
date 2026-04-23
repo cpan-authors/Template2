@@ -123,10 +123,70 @@ sub new {
     }, $class;
 }
 
+# track usages of objects using the factory
+#	this is used to track how many objects are currently using the shared factory
+#	so we can safely clear it when the last user is destroyed
+my $factory_usages;
+
+sub DESTROY {
+	my ( $self ) = @_;
+
+	# on Grammar destruction check if we can safely trigger the destroy for the factory
+	$self->unregister_factory() if $self;
+
+	return;
+}
+
+sub unregister_factory {
+	my ( $self ) = @_;
+
+	return unless $self && defined $factory && ref $factory_usages;
+	return unless "$factory" eq $factory_usages->{CURRENT};
+
+	if ( $factory_usages->{HOLD_BY}->{ "$self" } ) {
+		delete $factory_usages->{HOLD_BY}->{ "$self" };
+	}
+
+	if ( ! scalar keys %{ $factory_usages->{HOLD_BY} } ) {
+		# avoid a memory leak from factory
+		undef $factory;
+		undef $factory_usages;
+	}
+
+	return;
+}
+
+sub register_factory {
+	my ( $self ) = @_;
+
+	return unless $factory;
+
+	$factory_usages //= { CURRENT => "", HOLD_BY => {} };
+
+	if ( "$factory" ne $factory_usages->{CURRENT} ) {
+		# we have updated the factory, should not care about the previous one...
+		$factory_usages->{HOLD_BY} = {}; 		  # reset who hold the factory
+		$factory_usages->{CURRENT} = "$factory"; # stringify it
+	}
+
+	$factory_usages->{HOLD_BY}->{ "$self" } = 1; # we are using this factory
+
+	return;
+}
+
 # update method to set package-scoped $factory lexical
+# note: only objects that call install_factory() are tracked for cleanup;
+# objects created via new() without installing a factory are not tracked
+# (this is intentional — only factory installers own the reference)
 sub install_factory {
     my ($self, $new_factory) = @_;
+
     $factory = $new_factory;
+
+    # register the current factory in order to clean it on destroy if possible
+    $self->register_factory();
+
+    return $factory;
 }
 
 

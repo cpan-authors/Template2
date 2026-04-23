@@ -33,7 +33,7 @@ unless ( $ENV{AUTOMATED_TESTING} or $ENV{RELEASE_TESTING} ) {
 
 # only run the test when compiled with Template::Stash
 if ( $Template::Config::STASH ne 'Template::Stash::XS' ) {
-    skip_all('Template::Config is not using Template::Stash::XS');
+    plan( skip_all => 'Template::Config is not using Template::Stash::XS' );
 }
 
 require Template::Stash::XS;

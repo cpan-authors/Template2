@@ -339,6 +339,10 @@ You can also use the web interface:
 For information about commercial support and consultancy for the Template
 Toolkit, please contact the author.
 
+# AI Policy
+
+This project uses AI tools to assist development. Humans review and approve every change before it is merged. See [AI\_POLICY.md](AI_POLICY.md) for details.
+
 # Author
 
 The Template Toolkit was written by Andy Wardley <abw@wardley.org> with

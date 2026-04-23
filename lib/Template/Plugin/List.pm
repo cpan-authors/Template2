@@ -49,9 +49,6 @@ sub new {
             : [ @_ ]
         );
 
-    print STDERR " list: [ @$list ]\n";
-    print STDERR "class: [$class]\n";
-
     my $joint =
         defined $config->{ joint }
         ? $config->{ joint }
@@ -60,7 +57,7 @@ sub new {
             : ', ';
 
     bless {
-        list  => $text,
+        list  => $list,
         joint => $joint,
         _CONTEXT => $context,
     }, $class;
@@ -106,14 +103,14 @@ sub throw {
 
 sub push {
     my $self = CORE::shift;
-    CORE::push(@{ $self->{ list } } @_);
+    CORE::push(@{ $self->{ list } }, @_);
     return $self;
 }
 
 
 sub unshift {
     my $self = CORE::shift;
-    CORE::unshift(@{ $self->{ list } } @_);
+    CORE::unshift(@{ $self->{ list } }, @_);
     return $self;
 }
 

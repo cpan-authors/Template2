@@ -615,7 +615,7 @@ sub tokenise_directive {
                 \2                       # match opening quote
             |
                 # an unquoted number matches in $4
-                (-?\d+(?:\.\d+)?)       # numbers
+                (\d+(?:\.\d+)?)         # numbers
             |
                 # filename matches in $5
                 ( \/?\w+(?:(?:\/|::?)\w*)+ | \/\w+)

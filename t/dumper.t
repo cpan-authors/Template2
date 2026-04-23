@@ -62,7 +62,7 @@ $VAR1 = {
 
 -- expect --
 $VAR1 = {<br>
-          'baz' =&gt; 'boo'<br>
+          &#39;baz&#39; =&gt; &#39;boo&#39;<br>
         };<br>
 
 -- test --

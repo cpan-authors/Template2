@@ -10,7 +10,7 @@ it responsibly.
 Instead, please use one of the following methods:
 
 - **GitHub Private Vulnerability Reporting**:
-  [Report a vulnerability](https://github.com/abw/Template2/security/advisories/new)
+  [Report a vulnerability](https://github.com/cpan-authors/Template2/security/advisories/new)
   via GitHub's built-in private reporting feature.
 
 - **Email**: Contact the maintainers directly at the email addresses listed

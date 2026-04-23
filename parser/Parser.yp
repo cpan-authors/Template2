@@ -71,7 +71,9 @@ chunks:     chunks chunk            { push(@{$_[1]}, $_[2])
 
 chunk:      TEXT                    { $factory->textblock($_[1])          }
         |   statement ';'           { return '' unless $_[1];
-                                      $_[0]->location() . $_[1];
+                                      $_[1] =~ /^#line /
+                                        ? $_[1]
+                                        : $_[0]->location() . $_[1];
                                     }
 ;
 
@@ -133,11 +135,11 @@ atomdir:    GET expr                { $factory->get($_[2])                }
         |   filter
 ;
 
-condition:  IF expr ';'
-              block else END        { $factory->if(@_[2, 4, 5])           }
+condition:  IF expr ';'             { $_[0]->location()                   }
+              block else END        { $_[4] . $factory->if(@_[2, 5, 6])  }
         |   atomexpr IF expr        { $factory->if(@_[3, 1])              }
-        |   UNLESS expr ';'
-              block else END        { $factory->if("!($_[2])", @_[4, 5])  }
+        |   UNLESS expr ';'         { $_[0]->location()                   }
+              block else END        { $_[4] . $factory->if("!($_[2])", @_[5, 6])  }
         |   atomexpr UNLESS expr    { $factory->if("!($_[3])", $_[1])     }
 ;
 
@@ -148,8 +150,8 @@ else:       ELSIF expr ';'
         |   /* NULL */              { [ undef ]                           }
 ;
 
-switch:     SWITCH expr ';'
-              block case END        { $factory->switch(@_[2, 5])          }
+switch:     SWITCH expr ';'         { $_[0]->location()                   }
+              block case END        { $_[4] . $factory->switch(@_[2, 6])  }
 ;
 
 case:       CASE term ';' block
@@ -160,11 +162,15 @@ case:       CASE term ';' block
         |   /* NULL */              { [ undef ]                           }
 ;
 
-loop:       FOR loopvar ';'         { $_[0]->enter_block('FOR')           }
-                block END           { $factory->foreach(@{$_[2]}, $_[5], $_[0]->leave_block)  }
+loop:       FOR loopvar ';'         { my $loc = $_[0]->location();
+                                      $_[0]->enter_block('FOR');
+                                      $loc                                }
+                block END           { $_[4] . $factory->foreach(@{$_[2]}, $_[5], $_[0]->leave_block)  }
         |   atomexpr FOR loopvar    { $factory->foreach(@{$_[3]}, $_[1])  }
-        |   WHILE expr ';'          { $_[0]->enter_block('WHILE')         }
-              block END             { $factory->while(@_[2, 5], $_[0]->leave_block) }
+        |   WHILE expr ';'          { my $loc = $_[0]->location();
+                                      $_[0]->enter_block('WHILE');
+                                      $loc                                }
+              block END             { $_[4] . $factory->while(@_[2, 5], $_[0]->leave_block) }
         |   atomexpr WHILE expr     { $factory->while(@_[3, 1]) }
 ;
 
@@ -173,14 +179,14 @@ loopvar:    IDENT ASSIGN term args  { [ @_[1, 3, 4] ]                     }
         |   term args               { [ 0, @_[1, 2] ]                     }
 ;
 
-wrapper:    WRAPPER nameargs ';'
-              block END             { $factory->wrapper(@_[2, 4])         }
+wrapper:    WRAPPER nameargs ';'    { $_[0]->location()                   }
+              block END             { $_[4] . $factory->wrapper(@_[2, 5]) }
         |   atomexpr
               WRAPPER nameargs      { $factory->wrapper(@_[3, 1])         }
 ;
 
-try:        TRY ';'
-              block final END       { $factory->try(@_[3, 4])             }
+try:        TRY ';'                 { $_[0]->location()                   }
+              block final END       { $_[3] . $factory->try(@_[4, 5])    }
 ;
 
 final:      CATCH filename ';'
@@ -199,15 +205,19 @@ final:      CATCH filename ';'
 use:        USE lnameargs           { $factory->use($_[2])                }
 ;
 
-view:       VIEW nameargs ';'       { $_[0]->push_defblock();             }
-              block END             { $factory->view(@_[2,5],
+view:       VIEW nameargs ';'       { my $loc = $_[0]->location();
+                                      $_[0]->push_defblock();
+                                      $loc                                }
+              block END             { $_[4] . $factory->view(@_[2,5],
                                                      $_[0]->pop_defblock) }
 ;
 
-perl:       PERL ';'                { ${$_[0]->{ INPERL }}++;             }
+perl:       PERL ';'                { my $loc = $_[0]->location();
+                                      ${$_[0]->{ INPERL }}++;
+                                      $loc                                }
               block END             { ${$_[0]->{ INPERL }}--;
                                       $_[0]->{ EVAL_PERL }
-                                      ? $factory->perl($_[4])
+                                      ? $_[3] . $factory->perl($_[4])
                                       : $factory->no_perl();              }
 ;
 
@@ -219,8 +229,8 @@ rawperl:    RAWPERL                 { ${$_[0]->{ INPERL }}++;
                                       : $factory->no_perl();              }
 ;
 
-filter:     FILTER lnameargs ';'
-              block END             { $factory->filter(@_[2,4])           }
+filter:     FILTER lnameargs ';'    { $_[0]->location()                   }
+              block END             { $_[4] . $factory->filter(@_[2,5])  }
         |   atomexpr FILTER
               lnameargs             { $factory->filter(@_[3,1])           }
 ;

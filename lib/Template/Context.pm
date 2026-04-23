@@ -302,7 +302,7 @@ sub process {
 
     $template = [ $template ] unless ref $template eq 'ARRAY';
 
-    $self->debug("process([ ", join(', '), @$template, ' ], ',
+    $self->debug("process([ ", join(', ', @$template), ' ], ',
                  defined $params ? $params : '<no params>', ', ',
                  $localize ? '<localized>' : '<unlocalized>', ')')
         if $self->{ DEBUG };
@@ -429,7 +429,7 @@ sub insert {
 
     my $files = ref $file eq 'ARRAY' ? $file : [ $file ];
 
-    $self->debug("insert([ ", join(', '), @$files, " ])")
+    $self->debug("insert([ ", join(', ', @$files), " ])")
         if $self->{ DEBUG };
 
 

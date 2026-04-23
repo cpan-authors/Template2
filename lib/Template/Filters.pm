@@ -21,7 +21,6 @@ package Template::Filters;
 
 use strict;
 use warnings;
-use locale;
 use base 'Template::Base';
 use Template::Constants;
 use Scalar::Util 'blessed';
@@ -52,10 +51,10 @@ our $FILTERS = {
     'xml'             => \&xml_filter,
     'uri'             => \&uri_filter,
     'url'             => \&url_filter,
-    'upper'           => sub { uc $_[0] },
-    'lower'           => sub { lc $_[0] },
-    'ucfirst'         => sub { ucfirst $_[0] },
-    'lcfirst'         => sub { lcfirst $_[0] },
+    'upper'           => sub { utf8::upgrade(my $s = $_[0]); uc $s },
+    'lower'           => sub { utf8::upgrade(my $s = $_[0]); lc $s },
+    'ucfirst'         => sub { utf8::upgrade(my $s = $_[0]); ucfirst $s },
+    'lcfirst'         => sub { utf8::upgrade(my $s = $_[0]); lcfirst $s },
     'stderr'          => sub { print STDERR @_; return '' },
     'trim'            => sub { for ($_[0]) { s/^\s+//; s/\s+$// }; $_[0] },
     'null'            => sub { return '' },

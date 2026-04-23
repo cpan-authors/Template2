@@ -188,5 +188,19 @@ The end
 -- expect --
    error: undef error - nothing to live for
 
+-- test --
+[% PERL %]
+printf("Hello %s, you are %d years old", "World", 42);
+[% END %]
+-- expect --
+Hello World, you are 42 years old
 
+-- test --
+[% PERL %]
+printf PERLOUT "value: %05d\n", 7;
+printf "hex: %x\n", 255;
+[% END %]
+-- expect --
+value: 00007
+hex: ff
 

@@ -657,7 +657,7 @@ sub try {
     $n = 0;
     foreach $catch (@catch) {
         $match = $catch->[0] || do {
-            $default ||= $catch->[1];
+            $default = $catch->[1] unless defined $default;
             next;
         };
         $mblock = $catch->[1];
@@ -669,7 +669,7 @@ sub try {
     }
     $catchblock .= "\$_tt_error = 0;";
     $catchblock = pad($catchblock, 3) if $PRETTY;
-    if ($default) {
+    if (defined $default) {
         $default = pad($default, 1) if $PRETTY;
         $default = "else {\n    # DEFAULT\n$default\n    \$_tt_error = '';\n}";
     }

@@ -98,7 +98,8 @@ sub AUTOLOAD {
     my $method;
     if (Scalar::Util::blessed($this)) {
         # lookup the method...
-        $method = $this->can($item);
+        $method = $this->can($item)
+            || die $EXCEPTION->new( scalar => "no such method: $item" );
     }
     else {
         die $EXCEPTION->new( scalar => "invalid object method: $item" );

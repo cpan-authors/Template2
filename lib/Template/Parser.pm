@@ -494,7 +494,7 @@ sub split_text {
                        ($dirlines
                         ? sprintf("%d-%d", $line, $line + $dirlines)
                         : $line),
-                       $self->tokenise_directive($dir) ]);
+                       $self->tokenise_directive($dir, $line) ]);
             }
         }
 
@@ -550,7 +550,7 @@ sub interpolate_text {
         # $variable reference
         if ($var) {
             $line += $dir =~ tr/\n/ /;
-            push(@tokens, [ $dir, $line, $self->tokenise_directive($var) ]);
+            push(@tokens, [ $dir, $line, $self->tokenise_directive($var, $line) ]);
         }
         # other '$' reference - treated as text
         elsif ($dir) {
@@ -712,7 +712,8 @@ sub tokenise_directive {
             }
         }
 
-        push(@tokens, $type, $token);
+        # Store line number in ';' separators for accurate #line directives
+        push(@tokens, $type, ($type eq ';' && defined $line) ? $line : $token);
 
 #       print(STDERR " +[ $type, $token ]\n")
 #           if $DEBUG;
@@ -791,9 +792,9 @@ sub add_metadata {
 #------------------------------------------------------------------------
 
 sub location {
-    my $self = shift;
+    my ($self, $override_line) = @_;
     return "\n" unless $self->{ FILE_INFO };
-    my $line = ${ $self->{ LINE } };
+    my $line = defined $override_line ? $override_line : ${ $self->{ LINE } };
     my $info = $self->{ FILEINFO }->[-1];
     my $file = $info->{ path } || $info->{ name }
         || '(unknown template)';
@@ -888,12 +889,12 @@ sub _parse {
                                     IDENT   => 'file',
                                     ASSIGN  => '=',
                                     LITERAL => "'$info->{ name }'",
-                                    (';') x 2,
+                                    ';', $line,
                                     @$token,
-                                    (';') x 2);
+                                    ';', $line);
                         }
                         else {
-                            unshift(@$tokens, @$token, (';') x 2);
+                            unshift(@$tokens, @$token, ';', $line);
                         }
                         $token = undef;  # force redo
                     }
@@ -1004,7 +1005,7 @@ sub _parse {
 #    $text =~ s/\n/\\n/g;
 
     return $self->_parse_error("unexpected end of directive", $text)
-        if $value eq ';';   # end of directive SEPARATOR
+        if $token eq ';';   # end of directive SEPARATOR
 
     return $self->_parse_error("unexpected token ($value)", $text);
 }

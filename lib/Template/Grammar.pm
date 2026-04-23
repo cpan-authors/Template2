@@ -5246,7 +5246,9 @@ sub
 sub
 #line 77 "Parser.yp"
 { return '' unless $_[1];
-                                      $_[0]->location() . $_[1];
+                                      my $line = delete $_[0]->{_block_start_line};
+                                      $line = $_[2] unless defined $line;
+                                      $_[0]->location($line) . $_[1];
                                     }
 	],
 	[#Rule 8
@@ -5424,7 +5426,8 @@ sub
 		 'condition', 6,
 sub
 #line 141 "Parser.yp"
-{ $factory->if(@_[2, 4, 5])           }
+{ $_[0]->{_block_start_line} = $_[3];
+                                      $factory->if(@_[2, 4, 5])           }
 	],
 	[#Rule 45
 		 'condition', 3,
@@ -5436,7 +5439,8 @@ sub
 		 'condition', 6,
 sub
 #line 144 "Parser.yp"
-{ $factory->if("!($_[2])", @_[4, 5])  }
+{ $_[0]->{_block_start_line} = $_[3];
+                                      $factory->if("!($_[2])", @_[4, 5])  }
 	],
 	[#Rule 47
 		 'condition', 3,
@@ -5467,7 +5471,8 @@ sub
 		 'switch', 6,
 sub
 #line 156 "Parser.yp"
-{ $factory->switch(@_[2, 5])          }
+{ $_[0]->{_block_start_line} = $_[3];
+                                      $factory->switch(@_[2, 5])          }
 	],
 	[#Rule 52
 		 'case', 5,
@@ -5504,7 +5509,8 @@ sub
 		 'loop', 6,
 sub
 #line 168 "Parser.yp"
-{ $factory->foreach(@{$_[2]}, $_[5], $_[0]->leave_block)  }
+{ $_[0]->{_block_start_line} = $_[3];
+                                      $factory->foreach(@{$_[2]}, $_[5], $_[0]->leave_block)  }
 	],
 	[#Rule 58
 		 'loop', 3,
@@ -5522,7 +5528,8 @@ sub
 		 'loop', 6,
 sub
 #line 171 "Parser.yp"
-{ $factory->while(@_[2, 5], $_[0]->leave_block) }
+{ $_[0]->{_block_start_line} = $_[3];
+                                      $factory->while(@_[2, 5], $_[0]->leave_block) }
 	],
 	[#Rule 61
 		 'loop', 3,
@@ -5552,7 +5559,8 @@ sub
 		 'wrapper', 5,
 sub
 #line 181 "Parser.yp"
-{ $factory->wrapper(@_[2, 4])         }
+{ $_[0]->{_block_start_line} = $_[3];
+                                      $factory->wrapper(@_[2, 4])         }
 	],
 	[#Rule 66
 		 'wrapper', 3,
@@ -5564,7 +5572,8 @@ sub
 		 'try', 5,
 sub
 #line 187 "Parser.yp"
-{ $factory->try(@_[3, 4])             }
+{ $_[0]->{_block_start_line} = $_[2];
+                                      $factory->try(@_[3, 4])             }
 	],
 	[#Rule 68
 		 'final', 5,
@@ -5615,7 +5624,8 @@ sub
 		 'view', 6,
 sub
 #line 207 "Parser.yp"
-{ $factory->view(@_[2,5],
+{ $_[0]->{_block_start_line} = $_[3];
+                                      $factory->view(@_[2,5],
                                                      $_[0]->pop_defblock) }
 	],
 	[#Rule 76
@@ -5628,7 +5638,8 @@ sub
 		 'perl', 5,
 sub
 #line 212 "Parser.yp"
-{ ${$_[0]->{ INPERL }}--;
+{ $_[0]->{_block_start_line} = $_[2];
+                                      ${$_[0]->{ INPERL }}--;
                                       $_[0]->{ EVAL_PERL }
                                       ? $factory->perl($_[4])
                                       : $factory->no_perl();              }
@@ -5653,7 +5664,8 @@ sub
 		 'filter', 5,
 sub
 #line 227 "Parser.yp"
-{ $factory->filter(@_[2,4])           }
+{ $_[0]->{_block_start_line} = $_[3];
+                                      $factory->filter(@_[2,4])           }
 	],
 	[#Rule 81
 		 'filter', 3,
@@ -5698,7 +5710,8 @@ sub
 		 'anonblock', 5,
 sub
 #line 255 "Parser.yp"
-{ local $" = ', ';
+{ $_[0]->{_block_start_line} = $_[3];
+                                      local $" = ', ';
                                       print STDERR "experimental block args: [@{ $_[2] }]\n"
                                           if $_[2];
                                       $factory->anon_block($_[4])         }

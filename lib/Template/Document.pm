@@ -66,6 +66,16 @@ sub new {
     $defblocks ||= { };
     $metadata  ||= { };
 
+    # Security: when called as an instance method (e.g. template.new({BLOCK => ...})
+    # from within a template), refuse to eval string code. This prevents bypassing
+    # the EVAL_PERL option. See GH #245.
+    if (ref $class) {
+        return $class->error(
+            'new() cannot be called as an instance method with string BLOCK (security restriction)'
+        ) unless ref $block;
+        $class = ref $class;
+    }
+
     # evaluate Perl code in $block to create sub-routine reference if necessary
     unless (ref $block) {
         local $SIG{__WARN__} = \&catch_warnings;

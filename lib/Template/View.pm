@@ -59,7 +59,7 @@ sub _init {
 
     # generate table mapping object types to templates
     my $map = $config->{ map } || { };
-    $map->{ default } = $config->{ default } unless defined $map->{ default };
+    $map->{ default } //= $config->{ default };
     $self->{ map } = {
         %$MAP,
         %$map,
@@ -69,15 +69,13 @@ sub _init {
     $self->{ _BLOCKS } = $config->{ blocks } || { };
 
     # name of presentation method which printed objects might provide
-    $self->{ method } = defined $config->{ method }
-        ? $config->{ method }
-        : 'present';
+    $self->{ method } = $config->{ method } // 'present';
 
     # view is sealed by default preventing variable update after
     # definition, however we don't actually seal a view until the
     # END of the view definition
     my $sealed = $config->{ sealed };
-    $sealed = 1 unless defined $sealed;
+    $sealed //= 1;
     $self->{ sealed } = $sealed ? 1 : 0;
 
     # copy remaining config items from $config or set defaults
@@ -95,9 +93,7 @@ sub _init {
     # map methods of form ${include_prefix}_foobar() to include('foobar')?
     $self->{ include_prefix } = $config->{ include_prefix } || 'include_';
     # what about mapping foobar() to include('foobar')?
-    $self->{ include_naked  } = defined $config->{ include_naked }
-        ? $config->{ include_naked }
-        : 1;
+    $self->{ include_naked }  = $config->{ include_naked } // 1;
 
     # map methods of form ${view_prefix}_foobar() to include('foobar')?
     $self->{ view_prefix } = $config->{ view_prefix } || 'view_';

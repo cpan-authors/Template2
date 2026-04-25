@@ -74,7 +74,7 @@ sub ttprompt {
     my ($msg, $def)=@_;
     my $ISA_TTY = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ; # Pipe?
     my $dispdef = defined $def ? "[$def] " : " ";
-    $def = defined $def ? $def : "";
+    $def //= '';
     my $ans = '';
     local $|=1;
     print "$msg $dispdef";

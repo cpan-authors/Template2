@@ -207,18 +207,17 @@ sub text_search {
 
 sub text_repeat {
     my ($str, $count) = @_;
-    $str = '' unless defined $str;
+    $str //= '';
     return '' unless $count;
-    $count ||= 1;
     return $str x $count;
 }
 
 sub text_replace {
     my ($text, $pattern, $replace, $global) = @_;
-    $text    = '' unless defined $text;
-    $pattern = '' unless defined $pattern;
-    $replace = '' unless defined $replace;
-    $global  = 1  unless defined $global;
+    $text    //= '';
+    $pattern //= '';
+    $replace //= '';
+    $global  //= 1;
 
     if ($replace =~ /\$\d+/) {
         # replacement string may contain backrefs
@@ -258,7 +257,7 @@ sub text_remove {
 
 sub text_split {
     my ($str, $split, $limit) = @_;
-    $str = '' unless defined $str;
+    $str //= '';
 
     # For versions of Perl prior to 5.18 we have to be very careful about
     # spelling out each possible combination of arguments because split()
@@ -295,7 +294,7 @@ sub text_split {
             $split_re = qr/$split/;
         };
     }
-    $split_re = ' ' unless defined $split_re;
+    $split_re //= ' ';
     $limit ||= 0;
     return [split($split_re, $str, $limit)];
 }
@@ -361,7 +360,7 @@ sub text_dquote {
 
 sub hash_item {
     my ($hash, $item) = @_;
-    $item = '' unless defined $item;
+    $item //= '';
     return if $PRIVATE && $item =~ /$PRIVATE/;
     $hash->{ $item };
 }
@@ -548,8 +547,7 @@ sub list_grep {
 
 sub list_join {
     my ($list, $joint) = @_;
-    join(defined $joint ? $joint : ' ',
-         map { defined $_ ? $_ : '' } @$list);
+    join($joint // ' ', map { $_ // '' } @$list);
 }
 
 sub _list_sort_make_key {
@@ -568,7 +566,7 @@ sub _list_sort_make_key {
 
     # ugly hack to generate a single string using a delimiter that is
     # unlikely (but not impossible) to be found in the wild.
-    return lc join('/*^UNLIKELY^*/', map { defined $_ ? $_ : '' } @keys);
+    return lc join('/*^UNLIKELY^*/', map { $_ // '' } @keys);
 }
 
 sub list_sort {
@@ -633,7 +631,7 @@ sub list_merge {
 sub list_slice {
     my ($list, $from, $to) = @_;
     $from ||= 0;
-    $to    = $#$list unless defined $to;
+    $to   //= $#$list;
     $from += @$list if $from < 0;
     $to   += @$list if $to   < 0;
     return [ @$list[$from..$to] ];

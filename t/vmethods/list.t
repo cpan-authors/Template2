@@ -76,7 +76,7 @@ sub odd {
 
 sub jumble {
     my ($list, $chop) = @_;
-    $chop = 1 unless defined $chop;
+    $chop //= 1;
     return $list unless @$list > 3;
     push(@$list, splice(@$list, 0, $chop));
     return $list;

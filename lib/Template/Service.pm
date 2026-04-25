@@ -153,8 +153,7 @@ sub context {
 sub _init {
     my ($self, $config) = @_;
     my ($item, $data, $context, $block, $blocks);
-    my $delim = $config->{ DELIMITER };
-    $delim = ':' unless defined $delim;
+    my $delim = $config->{ DELIMITER } // ':';
 
     # coerce PRE_PROCESS, PROCESS and POST_PROCESS to arrays if necessary,
     # by splitting on non-word characters
@@ -170,8 +169,7 @@ sub _init {
         unless defined $config->{ PROCESS };
 
     $self->{ ERROR      } = $config->{ ERROR } || $config->{ ERRORS };
-    $self->{ AUTO_RESET } = defined $config->{ AUTO_RESET }
-                            ? $config->{ AUTO_RESET } : 1;
+    $self->{ AUTO_RESET } = $config->{ AUTO_RESET } // 1;
     $self->{ DEBUG      } = ( $config->{ DEBUG } || 0 )
                             & Template::Constants::DEBUG_SERVICE;
 

@@ -77,8 +77,7 @@ my $params   = {
 };
 
 sub format {
-    my $format = shift;
-    $format = '%s' unless defined $format;
+    my $format = shift // '%s';
     return sub {
 	sprintf($format, shift);
     }

@@ -337,8 +337,7 @@ sub parse {
     my ($self, $text, $info) = @_;
     my ($tokens, $block);
 
-    $info->{ DEBUG } = $self->{ DEBUG_DIRS }
-        unless defined $info->{ DEBUG };
+    $info->{ DEBUG } //= $self->{ DEBUG_DIRS };
 
 #    print "info: { ", join(', ', map { "$_ => $info->{ $_ }" } keys %$info), " }\n";
 
@@ -400,10 +399,8 @@ sub split_text {
 
     # extract all directives from the text
     while ($text =~ s/$split//) {
-        $pre = $1;
-        $dir = defined($2) ? $2 : $3;
-        $pre = '' unless defined $pre;
-        $dir = '' unless defined $dir;
+        $pre = $1 // '';
+        $dir = $2 // $3 // '';
 
         $prelines  = ($pre =~ tr/\n//);  # newlines in preceding text
         $dirlines  = ($dir =~ tr/\n//);  # newlines in directive tag
@@ -919,7 +916,7 @@ sub _parse {
             };
             # clear undefined token to avoid 'undefined variable blah blah'
             # warnings and let the parser logic pick it up in a minute
-            $token = '' unless defined $token;
+            $token //= '';
 
             # get the next state for the current lookahead token
             $action = defined ($lookup = $state->{'ACTIONS'}->{ $token })

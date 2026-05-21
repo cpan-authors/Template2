@@ -66,6 +66,20 @@ ok( &{ $doc->block }   eq 'some output' );
 ok( &{ $doc->blocks->{ foo } } eq 'the foo block' );
 ok( &{ $doc->blocks->{ bar } } eq 'the bar block' );
 
+# GH #245: instance method call with string BLOCK must be rejected
+my $bad = $doc->new({ BLOCK => 'die "should not run"' });
+ok( ! defined $bad, 'instance->new() with string BLOCK returns undef' );
+
+# instance method call with coderef BLOCK still works
+my $good = $doc->new({ BLOCK => sub { return 'ok' } });
+ok( ref $good, 'instance->new() with coderef BLOCK succeeds' );
+
+# class method call with string BLOCK still works (legitimate compilation path)
+my $compiled = Template::Document->new({
+    BLOCK => 'sub { return "compiled" }',
+});
+ok( ref $compiled, 'class->new() with string BLOCK succeeds' );
+
 my $dir   = -d 't' ? 't/test' : 'test';
 my $tproc = Template->new({
     INCLUDE_PATH => "$dir/src",
@@ -142,6 +156,14 @@ title: My Template Title
 [% INCLUDE $mydoc %]
 -- expect --
 some output
+
+# GH #245: template.new({BLOCK => '...'}) must not eval arbitrary Perl code
+# when EVAL_PERL is not set. The string BLOCK should be rejected when new()
+# is called as an instance method (i.e. from within a template).
+-- test --
+before[% template.new({ "BLOCK" => "die 'this should not run'" }) %]after
+-- expect --
+beforeafter
 
 -- stop --
 # test for component.caller and component.callers patch

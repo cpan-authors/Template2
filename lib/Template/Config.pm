@@ -323,6 +323,11 @@ sub PRINT {
     my $self = shift;
     $$self .= join('', @_);
 }
+sub PRINTF {
+    my $self = shift;
+    my $fmt  = shift;
+    $$self .= sprintf($fmt, @_);
+}
 
 
 

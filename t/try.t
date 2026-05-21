@@ -644,3 +644,46 @@ caught food: cabbage
 -- expect --
 error: file error - no_such_file: not found
 
+#------------------------------------------------------------------------
+# empty CATCH block should still catch errors (GH #271)
+#------------------------------------------------------------------------
+
+-- test --
+[% TRY;
+     THROW food 'broccoli';
+   CATCH;
+   END;
+%]ok
+-- expect --
+ok
+
+-- test --
+[% TRY;
+     THROW food 'broccoli';
+   CATCH food;
+   END;
+%]ok
+-- expect --
+ok
+
+-- test --
+[% TRY;
+     THROW food 'broccoli';
+   CATCH food;
+     "caught";
+   CATCH;
+   END;
+%]
+-- expect --
+caught
+
+-- test --
+[% TRY;
+     THROW food 'broccoli';
+   CATCH bar;
+   CATCH;
+   END;
+%]ok
+-- expect --
+ok
+

@@ -186,3 +186,10 @@ there?age=42&amp;name=frank
 
 -- expect --
 /cgi-bin/woz.pl?utf8=Na%C3%AFve%20Unicode
+
+-- test --
+-- name empty args preserved --
+[% USE url('/search') -%]
+[% url(q="hello", empty="", other="x") %]
+-- expect --
+/search?empty=&other=x&q=hello

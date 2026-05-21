@@ -573,6 +573,13 @@ The following conditional and boolean operators may be used:
 
     == != < <= > >= && || ! and or not
 
+B<Note:> Unlike Perl, the C<==> and C<!=> operators perform B<string>
+comparison (equivalent to Perl's C<eq> and C<ne>).  The other relational
+operators (C<E<lt>>, C<E<gt>>, C<E<lt>=>, C<E<gt>=>) perform numeric comparison
+as in Perl.  This means C<[% 10 == "10.0" %]> is B<false> in the Template
+Toolkit (string "10" is not equal to string "10.0"), whereas it would be
+true in Perl.
+
 Conditions may be arbitrarily complex and are evaluated with the same
 precedence as in Perl.  Parenthesis may be used to explicitly
 determine evaluation order.

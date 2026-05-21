@@ -592,7 +592,7 @@ sub _dotop {
 sub _assign {
     my ($self, $root, $item, $args, $value, $default) = @_;
     my $rootref = ref $root;
-    my $atroot  = ($root eq $self);
+    my $atroot  = (blessed $root && $root->isa(ref $self));
     my $result;
     $args ||= [ ];
     $default ||= 0;
@@ -614,27 +614,35 @@ sub _assign {
             unless $default && $root->[$item];
     }
     elsif (blessed($root)) {
-        # try to call the item as a method of an object
+        # try to call the item as a method of an object,
+        # wrapped in eval to catch missing methods gracefully
+        # (matching _dotop behaviour and XS stash)
 
-        return $root->$item(@$args, $value)         ## RETURN
-            unless $default && $root->$item();
+        if ($default) {
+            eval { $result = $root->$item() };
+            if ($@) {
+                die $@ if ref($@) || !($@ =~ /Can't locate object method/);
+            }
+            else {
+                return undef if $result;
+            }
+        }
 
-# 2 issues:
-#   - method call should be wrapped in eval { }
-#   - fallback on hash methods if object method not found
-#
-#     eval { $result = $root->$item(@$args, $value); };
-#
-#     if ($@) {
-#         die $@ if ref($@) || ($@ !~ /Can't locate object method/);
-#
-#         # failed to call object method, so try some fallbacks
-#         if (UNIVERSAL::isa($root, 'HASH') && exists $root->{ $item }) {
-#         $result = ($root->{ $item } = $value)
-#             unless $default && $root->{ $item };
-#         }
-#     }
-#     return $result;                       ## RETURN
+        eval { $result = $root->$item(@$args, $value) };
+
+        if ($@) {
+            # propagate real errors (exception objects or known methods)
+            die $@ if ref($@) || $root->can($item);
+
+            # failed to call method, fall back on hash access if possible
+            if (reftype($root) eq 'HASH') {
+                return ($root->{ $item } = $value)
+                    unless $default && $root->{ $item };
+            }
+        }
+        else {
+            return $result;
+        }
     }
     else {
         die "don't know how to assign to [$root].[$item]\n";    ## DIE

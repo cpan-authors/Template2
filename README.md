@@ -1,324 +1,712 @@
-[![](https://github.com/abw/Template2/workflows/linux/badge.svg)](https://github.com/abw/Template2/actions) [![](https://github.com/abw/Template2/workflows/macos/badge.svg)](https://github.com/abw/Template2/actions)
+[![](https://github.com/cpan-authors/Template2/workflows/linux/badge.svg)](https://github.com/cpan-authors/Template2/actions) [![](https://github.com/cpan-authors/Template2/workflows/macos/badge.svg)](https://github.com/cpan-authors/Template2/actions)
 
-# Template Toolkit
+# NAME
 
-Version 3.102, August 2022
+Template - Front-end module to the Template Toolkit
 
-Copyright (C) 1996-2022 Andy Wardley.  All Rights Reserved
+# SYNOPSIS
 
-This is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
+    use Template;
 
-# Installation
+    # some useful options (see below for full list)
+    my $config = {
+        INCLUDE_PATH => '/search/path',  # or list ref
+        INTERPOLATE  => 1,               # expand "$var" in plain text
+        POST_CHOMP   => 1,               # cleanup whitespace
+        PRE_PROCESS  => 'header',        # prefix each template
+        EVAL_PERL    => 1,               # evaluate Perl code blocks
+    };
 
-If you have the CPAN module installed then you can install the Template
-Toolkit from the command line like so:
+    # create Template object
+    my $template = Template->new($config);
+
+    # define template variables for replacement
+    my $vars = {
+        var1  => $value,
+        var2  => \%hash,
+        var3  => \@list,
+        var4  => \&code,
+        var5  => $object,
+    };
+
+    # specify input filename, or file handle, text reference, etc.
+    my $input = 'myfile.html';
+
+    # process input template, substituting variables
+    $template->process($input, $vars)
+        || die $template->error();
+
+# DESCRIPTION
+
+This documentation describes the Template module which is the direct
+Perl interface into the Template Toolkit.  It covers the use of the
+module and gives a brief summary of configuration options and template
+directives.  Please see [Template::Manual](https://metacpan.org/pod/Template%3A%3AManual) for the complete reference
+manual which goes into much greater depth about the features and use
+of the Template Toolkit.  The [Template::Tutorial](https://metacpan.org/pod/Template%3A%3ATutorial) is also available
+as an introductory guide to using the Template Toolkit.
+
+# METHODS
+
+## new(\\%config)
+
+The `new()` constructor method (implemented by the
+[Template::Base](https://metacpan.org/pod/Template%3A%3ABase%23new%28%29) base class) instantiates a new
+`Template` object. A reference to a hash array of configuration items may be
+passed as a parameter.
 
-    $ cpan Template
+    my $tt = Template->new({
+        INCLUDE_PATH => '/usr/local/templates',
+        EVAL_PERL    => 1,
+    }) || die $Template::ERROR, "\n";
+
+A reference to a new `Template` object is returned, or undef on error. In the
+latter case, the error message can be retrieved by calling [error()](https://metacpan.org/pod/error%28%29) as a
+class method or by examining the `$Template::ERROR` package variable
+directly.
+
+    my $tt = Template->new(\%config)
+        || die Template->error(), "\n";
+
+    my $tt = Template->new(\%config)
+        || die $Template::ERROR, "\n";
+
+For convenience, configuration items may also be specified as a list
+of items instead of a hash array reference.  These are automatically
+folded into a hash array by the constructor.
+
+    my $tt = Template->new(INCLUDE_PATH => '/tmp', POST_CHOMP => 1)
+        || die $Template::ERROR, "\n";
+
+## process($template, \\%vars, $output, %options)
+
+The `process()` method is called to process a template. The first parameter
+indicates the input template as one of:
+
+- a filename relative to `INCLUDE_PATH`, if defined
+- a reference to a text string containing the template text
+- a file handle reference (e.g. `IO::Handle` or sub-class) or `GLOB`
+(e.g. `\*STDIN`), from which the template can be read.
+
+A reference to
+a hash array may be passed as the second parameter, containing definitions of
+template variables.
+
+    # filename
+    $tt->process('welcome.tt2')
+        || die $tt->error(), "\n";
+
+    # text reference
+    $text = "[% INCLUDE header %]\nHello world!\n[% INCLUDE footer %]";
+    $tt->process(\$text)
+        || die $tt->error(), "\n";
+
+    # file handle (GLOB)
+    $tt->process(\*DATA)
+        || die $tt->error(), "\n";
+
+    __END__
+    [% INCLUDE header %]
+    This is a template defined in the __END__ section which is
+    accessible via the DATA "file handle".
+    [% INCLUDE footer %]
+
+By default, the processed template output is printed to `STDOUT`. The
+`process()` method then returns `1` to indicate success. A third parameter
+may be passed to the `process()` method to specify a different output location.
+This value may be one of:
+
+- a plain string indicating a filename which will be opened (relative to
+`OUTPUT_PATH`, if defined) and the output written to
+- a file GLOB opened ready for output
+- a reference to a scalar (e.g. a text string) to which output/error is appended
+- a reference to a subroutine which is called, passing the output as a parameter
+- any object reference which implements a `print()` method (e.g. `IO::Handle`,
+`Apache::Request`, etc.) which will be called, passing the generated output
+as a parameter.
+
+Examples:
+
+    # output filename
+    $tt->process('welcome.tt2', $vars, 'welcome.html')
+        || die $tt->error(), "\n";
+
+    # reference to output subroutine
+    sub myout {
+        my $output = shift;
+        ...
+    }
+    $tt->process('welcome.tt2', $vars, \&myout)
+        || die $tt->error(), "\n";
+
+    # reference to output text string
+    my $output = '';
+    $tt->process('welcome.tt2', $vars, \$output)
+        || die $tt->error(), "\n";
+
+    print "output: $output\n";
+
+In an Apache/mod\_perl handler:
+
+    sub handler {
+        my $req = shift;
+
+        # ...your code here...
+
+        # direct output to Apache::Request via $req->print($output)
+        $tt->process($file, $vars, $req) || do {
+            $req->log_reason($tt->error());
+            return SERVER_ERROR;
+        };
+        return OK;
+    }
+
+After the optional third output argument can come an optional
+reference to a hash or a list of `(name, value)` pairs providing further
+options for the output.  The only option currently supported is
+`binmode` which, when set to any true value will ensure that files
+created (but not any existing file handles passed) will be set to
+binary mode.
+
+    # either: hash reference of options
+    $tt->process($infile, $vars, $outfile, { binmode => 1 })
+        || die $tt->error(), "\n";
+
+    # or: list of name, value pairs
+    $tt->process($infile, $vars, $outfile, binmode => 1)
+        || die $tt->error(), "\n";
 
-Please see the separate INSTALL file for further information on installing
-the Template Toolkit, including what to do if you don't have the CPAN
-module installed, and/or installation on MS Windows.
+Alternately, the `binmode` argument can specify a particular IO layer such
+as `:utf8`.
 
-# Description
+    $tt->process($infile, $vars, $outfile, binmode => ':utf8')
+        || die $tt->error(), "\n";
 
-The Template Toolkit is a collection of modules which implement a
-fast, flexible, powerful and extensible template processing system.
-It was originally designed and remains primarily useful for generating
-dynamic web content, but it can be used equally well for processing
-any other kind of text based documents: HTML, XML, POD, PostScript,
-LaTeX, and so on.
+The `OUTPUT` configuration item can be used to specify a default output
+location other than `\*STDOUT`.  The `OUTPUT_PATH` specifies a directory
+which should be prefixed to all output locations specified as filenames.
 
-It can be used as a stand-alone Perl module or embedded within an
-Apache/mod_perl server for generating highly configurable dynamic web
-content.  A number of Perl scripts are also provided which can greatly
-simplify the process of creating and managing static web content and
-other offline document systems.
+    my $tt = Template->new({
+        OUTPUT      => sub { ... },       # default
+        OUTPUT_PATH => '/tmp',
+    ...
+    }) || die Template->error(), "\n";
 
+    # use default OUTPUT (sub is called)
+    $tt->process('welcome.tt2', $vars)
+        || die $tt->error(), "\n";
 
-# What's New?
+    # write file to '/tmp/welcome.html'
+    $tt->process('welcome.tt2', $vars, 'welcome.html')
+        || die $tt->error(), "\n";
 
-Version 3.102 Various performance improvements. Update docs on complex keys. Remove unncessary imports for modern Perls.
+The `process()` method returns `1` on success or `undef` on error. The
+error message generated in the latter case can be retrieved by calling the
+[error()](https://metacpan.org/pod/error%28%29) method. See also ["CONFIGURATION SUMMARY"](#configuration-summary) which describes how error
+handling may be further customised.
 
-Version 3.101 Added meta() method to Template::Document and fixed
-incorrect line numbers when using outline tags
+## error()
 
-Version 3.100 Maintenance release: several fixes, documentation improvements
-and ttree updates.
+When called as a class method, it returns the value of the `$ERROR` package
+variable.  Thus, the following are equivalent.
 
-Version 3.009 revert "Allow SET to have FILTER used in it"
+    my $tt = Template->new()
+        || die Template->error(), "\n";
 
-Version 3.008 fixes some testing issue with CGI and taint issues.
+    my $tt = Template->new()
+        || die $Template::ERROR, "\n";
 
-Version 3.007 fixes a cpanm issue.
+When called as an object method, it returns the value of the internal
+`_ERROR` variable, as set by an error condition in a previous call to
+process().
 
-Version 3.006 adds an encoding option to Datafile plugin
-and refresh the contributor list and copyrights for 2020.
+    $tt->process('welcome.tt2')
+        || die $tt->error(), "\n";
 
-Version 3.004 enforced three-args open.
+Errors are represented in the Template Toolkit by objects of the
+[Template::Exception](https://metacpan.org/pod/Template%3A%3AException) class. If the [process()](https://metacpan.org/pod/process%28%29) method returns a false value
+then the `error()` method can be called to return an object of this class.
+The [type()](https://metacpan.org/pod/Template%3A%3AException%23type%28%29) and
+[info()](https://metacpan.org/pod/Template%3A%3AException%23info%28%29) methods can called on the object to
+retrieve the error type and information string, respectively. The
+[as\_string()](https://metacpan.org/pod/Template%3A%3AException%23as_string%28%29)
+method can be called to return a string of the form `$type - $info`. This
+method is also overloaded onto the stringification operator allowing the
+object reference itself to be printed to return the formatted error string.
 
-Version 3.003 fixes some compatibility issues with several Plugins.
+    $tt->process('somefile') || do {
+        my $error = $tt->error();
+        print "error type: ", $error->type(), "\n";
+        print "error info: ", $error->info(), "\n";
+        print $error, "\n";
+    };
 
-Version 3.002 is a maintenance release fixing a warning during install.
+## service()
 
-Version 3.001 officially drops Perl 5.6 support.
+The `Template` module delegates most of the effort of processing templates
+to an underlying [Template::Service](https://metacpan.org/pod/Template%3A%3AService) object.  This method returns a reference
+to that object.
 
-Version 3.000 provides several performance improvements.
+## context()
 
-Version 2.29 is a maintenance release fixing a cycling weaken issue.
+The [Template::Service](https://metacpan.org/pod/Template%3A%3AService) module uses a core [Template::Context](https://metacpan.org/pod/Template%3A%3AContext) object for
+runtime processing of templates.  This method returns a reference to
+that object and is equivalent to `$template->service->context()`.
 
-Version 2.28 is a maintenance release fixing some minor bugs and warnings.
-GitHub is now the official bug tacker tool for the project.
+## template($name)
 
-Version 2.27 is a maintenance release fixing some minor bugs and warnings.
+This method is a simple wrapper around the [Template::Context](https://metacpan.org/pod/Template%3A%3AContext) method of the
+same name.  It returns a compiled template for the source provided as an
+argument.
 
-Version 2.26 adds the new outline tag style and fixes various minor bugs.
+# CONFIGURATION SUMMARY
 
-Version 2.25 fixes compatibility with Perl version 5.18 and fixes a numer of
-other minor bugs, typos, etc.
+The following list gives a short summary of each Template Toolkit
+configuration option.  See [Template::Manual::Config](https://metacpan.org/pod/Template%3A%3AManual%3A%3AConfig) for full details.
 
-Version 2.24 adds some new text virtual methods and fixes a silly bug in the
-Makefile.PL.
+## Template Style and Parsing Options
 
-Version 2.23 is a maintenance release which fixes a few bugs, including one
-in the XS Stash which caused problems when using third party modules (e.g.
-DateTime) which use the string-based form of eval.
+### ENCODING
 
-Version 2.22 is mostly a bug fixing release.  The XS Stash now works with
-utf8 data.  Tests that were failing on Win32 platforms have been fixed.  Pod
-coverage and quality tests have been disabled except for release testing.
-The Autoformat plugin has been moved into a separate distribution.
+Specifies the character encoding.
 
-Version 2.21 featured a complete clean-out of all the old HTML documentation,
-examples, libraries and other cruft that was way out of date and badly
-unloved. A new version of the HTML documentation is available for download
-from http://tt2.org/download/index.html#html_docs. v2.21 also fixes a memory
-leak in the XS Stash.
+### START\_TAG, END\_TAG
 
-Version 2.21 also adds the STRICT option which reports the use of undefined
-variable values. The ANYCASE option has been improved so that you can write
-things like 'data.last' without the 'last' bit being interpreted as the LAST
-keyword. The xml filter is also new, providing a slightly more rigourous
-version of the html filter for use in XML documents.
+Define tokens that indicate start and end of directives
+(default: '`[%`' and '`%]`').
 
-Version 2.20 fixed all known bugs.  It also added the Scalar and Assert
-plugins.  The HTML documentation, examples, libraries and other bits
-and pieces are still provided with the distribution, but are no longer
-installed by the Makefile.PL.  If you want them (and very few people do,
-it seems), then you'll need to dig them out of the distribution by yourself
-(or uncomment the commented-out lines in Makefile.PL that handle the
-installation).  This has been done in an effort to simplify the installation
-process.  All of the HTML documentation is available online at http://tt2.org/
+### TAG\_STYLE
 
-Version 2.19 fixed some minor bugs in both Perl and XS versions of the Template
-Stash, and fixed a problem with a test in the test suite failing under Win32.
-It also added the url filter as a version of what the uri filter used to do
-before we fixed it to do the right thing.
+Set `START_TAG` and `END_TAG` according to a pre-defined style (default:
+'`template`', as above).
 
-Version 2.18 fixes a number of minor bugs. It also includes a modification to
-the parser grammar so that you can write expressions as arguments to
-subroutine, method or vmethod calls.
+### PRE\_CHOMP, POST\_CHOMP
 
-Versions 2.17 and 2.16 were interim releases by Adam Kennedy who took care of
-some installation problems on Mac OSX while Andy was busy elsewhere.
+Removes whitespace before/after directives (default: 0/0).
 
-Version 2.15 is a major maintenance release.  It applies all outstanding
-patches and closes all open bugs listed on http://rt.cpan.org/  It
-includes:
+### TRIM
 
- * XS Stash: enhancements include support for tied hashes/arrays
-   and "fallback" methods on objects (e.g. accessing hash and
-   list items and calling virtual methods)
+Remove leading and trailing whitespace from template output (default: 0).
 
- * Virtual Methods: added the scalar.remove, scalar.substr,
-   hash.delete, hash.items, hash.pairs, list.import and list.hash
-   virtual methods.  Added support for backreferences to
-   scalar.replace and other improvements to list.push, list.unshift,
-   list.hash, hash.list
+### INTERPOLATE
 
- * Plugins: Added Math plugin, Bug fixes and enhancements to File,
-   Image, URL and String plugins.  Moved DBI, XML and GD plugins
-   into separate distributions.
+Interpolate variables embedded like `$this` or `${this}` (default: 0).
 
- * Numerous other bug fixes, enhancements, documentation updates, all
-   described in detail in the Changes file.
+### ANYCASE
 
-More significant is what's not in version 2.15.  The DBI plugin has
-been moved into a separate Template-DBI distribution, the GD plugins
-into Template-GD, the XML plugins into Template-XML, and the Latex
-filters into Template-Latex.  This has been done in an effort to make
-the Template Toolkit core distribution smaller, cleaner and easier to
-configure and install.
+Allow directive keywords in lower case (default: 0 - UPPER only).
 
-Version 2.14 added Unicode support to TT, a full set of command line
-options for tpage, the 'caller' and 'callers' items to each template
-component, some enhancements to the XML::Simple plugin, and a number
-of minor bug fixes.
+## Template Files and Blocks
 
-See the Changes file for further details of the changes in these and
-earlier releases.
+### INCLUDE\_PATH
 
-# General Features
+One or more directories to search for templates.
 
-Some of the key features of the Template Toolkit are listed below.
-See the documentation for further detail.
+### DELIMITER
 
-  * simple but powerful template language
+Delimiter for separating paths in `INCLUDE_PATH` (default: '`:`').
 
-  * promotes a clear separation between application functionality and
-    presentation elements
+### ABSOLUTE
 
-  * variable substitution allows binding to any Perl data types
-    (scalars, hashes, lists, subs, objects)
+Allow absolute file names, e.g. `/foo/bar.html` (default: 0).
 
-  * conditional blocks (IF/UNLESS/ELSIF/ELSE, SWITCH/CASE)
+### RELATIVE
 
-  * loops and iterators (FOREACH, WHILE)
+Allow relative filenames, e.g. `../foo/bar.html` (default: 0).
 
-  * file/template inclusion (INSERT, INCLUDE, PROCESS, WRAPPER)
+### DEFAULT
 
-  * definition of local template components (BLOCK)
+Default template to use when another not found.
 
-  * post-processing filters (FILTER)
+### BLOCKS
 
-  * plugin module architecture for easy extensibility (USE)
+Hash array pre-defining template blocks.
 
-  * embedded Perl can be optionally enabled (PERL/RAWPERL)
+### AUTO\_RESET
 
-  * full exception handling (TRY/THROW/CATCH/FINAL)
+Enabled by default causing `BLOCK` definitions to be reset each time a
+template is processed.  Disable to allow `BLOCK` definitions to persist.
 
-  * user-defined macros (MACRO)
+### RECURSION
 
-  * definition of template metadata (META)
+Flag to permit recursion into templates (default: 0).
 
-  * virtual methods for complex data types (e.g. list.size, hash.keys, etc.)
+## Template Variables
 
-  * numerous configuration options
+### VARIABLES
 
-  * modular OO architecture allows extensive customisation
+Hash array of variables and values to pre-define in the stash.
 
-  * fast LALR(1) parser modules compiles templates according to a
-    YACC-like grammar.
+## Runtime Processing Options
 
-  * templates compiled to Perl code for efficient runtime execution
+### EVAL\_PERL
 
-  * in-memory and on-disk caching of compiled templates
+Flag to indicate if `PERL`/`RAWPERL` blocks should be processed (default: 0).
 
-  * simple front end module (Template.pm) for ease of use
+### PRE\_PROCESS, POST\_PROCESS
 
-  * numerous plugin modules: CGI, DBI, XML, URL, Date, Table, etc
+Name of template(s) to process before/after main template.
 
-  * standard filters for html, case folding, regex search and replace, etc.
+### PROCESS
 
+Name of template(s) to process instead of main template.
 
-# Documentation
+### ERROR
 
-The Template Toolkit is provided with enough documentation to keep all
-but the most voracious reader happy for quite some time.
+Name of error template or reference to hash array mapping error types to
+templates.
 
-The 'Changes' file in the distribution directory documents all visible
-changes between versions of the Template Toolkit.  See the section
-'VERSION COMPATABILITY' below for further details.
+### OUTPUT
 
-The 'TODO' file, also in the distribution directory, lists known bugs,
-planned enhancements and possible new features for future versions.
+Default output location or handler.
 
-The 'INSTALL' file covers the configuration and installation process.
+### OUTPUT\_PATH
 
-The rest of the documentation is distributed in Pod format. The Pod pages
-are installed when you 'make install' and can be viewed using 'perldoc',
-e.g.
+Directory into which output files can be written.
 
-    perldoc Template
+### DEBUG
 
-If you're using a Unix based system then the pages should also be
-converted to manpages during 'make install'.  Thus, you can also:
+Enable debugging messages.
 
-    man Template
+## Caching and Compiling Options
 
-(the man pages shouldn't have any problems relating to older versions)
+### CACHE\_SIZE
 
-The documentation is also available in HTML format at the TT web site:
+Maximum number of compiled templates to cache in memory (default:
+undef - cache all)
 
-    http://tt2.org/docs/
+### COMPILE\_EXT
 
-The documentation is now split into several sections.  The 'Template'
-page is now much shorter, containing information relating to the
-specifics of using the Template module, and a brief summary of
-everything else.  Information relating more generally to the Template
-Toolkit, features, syntax of the template language, plugins and so
-forth, has been split up into a number of Template::Manual::* pages.
-Template::Manual provides the index for the manual.
+Filename extension for compiled template files (default: undef - don't
+compile).
 
-    perldoc Template::Manual
+### COMPILE\_DIR
 
-Individual sections can be viewed as, for example,
+Root of directory in which compiled template files should be written
+(default: undef - don't compile).
 
-    perldoc Template::Manual::Syntax
-    perldoc Template::Manual::Directives
-    perldoc Template::Manual::Plugins
+## Plugins and Filters
 
-The Template::Tutorial provides an index to the tutorial documents.
-There are currently 2 tutorials, on generating web content, and on
-creating and using data files.
+### PLUGINS
 
-    perldoc Template::Tutorial
-    perldoc Template::Tutorial::Web
-    perldoc Template::Tutorial::Datafile
+Reference to a hash array mapping plugin names to Perl packages.
 
-Each of the various modules that comprise the Template Toolkit has its
-own associated documention.  The 'Template::Modules' manpage lists
-these modules along with a brief description of their functions.
+### PLUGIN\_BASE
 
-    perldoc Template::Modules
+One or more base classes under which plugins may be found.
 
-See the individual pages for further detail:
+### LOAD\_PERL
 
-    perldoc Template::Context
-    perldoc Template::Parser
-    perldoc Template::Provider
+Flag to indicate regular Perl modules should be loaded if a named plugin
+can't be found  (default: 0).
 
-If you're interested in the internals of the Template Toolkit and want
-to know more about how it all works, then you might like to have a look
-at the following:
+### FILTERS
 
-    perldoc Template::Manual::Internals
+Hash array mapping filter names to filter subroutines or factories.
 
-This document also contains important information for people wishing
-to hack on the Template Toolkit.
+## Customisation and Extension
 
-The final bit of good news is that there is now a FAQ for the Template
-Toolkit.
+### LOAD\_TEMPLATES
 
-    perldoc Template::FAQ
+List of template providers.
 
-It's now got a few question in it, and better still, some answers!
-Further contributions welcome.
+### LOAD\_PLUGINS
 
-Most of the documentation is stable and reliable.  Where it's not then
-it's usually marked as such.  In particular, the documentation for the
-internals (Template::Manual::Internals) and FAQ (Template::FAQ) are
-perpetually under construction.
+List of plugin providers.
 
-# Source Code
+### LOAD\_FILTERS
 
-The source code for the Template Toolkit is maintained in a public git
-repository at github:
+List of filter providers.
 
-    https://github.com/abw/Template2
+### TOLERANT
 
-If you want to hack on the source code, either to fix a bug or add a feature
-then you should fork the repository, make the changes, commit them, and then
-send me a pull request.  See this guide for further information.
+Set providers to tolerate errors as declinations (default: 0).
 
-    http://help.github.com/send-pull-requests/
+### SERVICE
 
-Any non-trivial new features should be discussed on the Template Toolkit
-mailing list first (see below). Don't forget to update the documentation and
-tests where relevant
+Reference to a custom service object (default: [Template::Service](https://metacpan.org/pod/Template%3A%3AService)).
 
+### CONTEXT
 
-# Support
+Reference to a custom context object (default: [Template::Context](https://metacpan.org/pod/Template%3A%3AContext)).
+
+### STASH
+
+Reference to a custom stash object (default: [Template::Stash](https://metacpan.org/pod/Template%3A%3AStash)).
+
+### PARSER
+
+Reference to a custom parser object (default: [Template::Parser](https://metacpan.org/pod/Template%3A%3AParser)).
+
+### GRAMMAR
+
+Reference to a custom grammar object (default: [Template::Grammar](https://metacpan.org/pod/Template%3A%3AGrammar)).
+
+# DIRECTIVE SUMMARY
+
+The following list gives a short summary of each Template Toolkit directive.
+See [Template::Manual::Directives](https://metacpan.org/pod/Template%3A%3AManual%3A%3ADirectives) for full details.
+
+## GET
+
+Evaluate and print a variable or value.
+
+    [%   GET variable %]    # 'GET' keyword is optional
+    [%       variable %]
+    [%       hash.key %]
+    [%         list.n %]
+    [%     code(args) %]
+    [% obj.meth(args) %]
+    [%  "value: $var" %]
+
+## CALL
+
+As per [GET](https://metacpan.org/pod/GET) but without printing result (e.g. call code)
+
+    [%  CALL variable %]
+
+## SET
+
+Assign a values to variables.
+
+    [% SET variable = value %]    # 'SET' also optional
+    [%     variable = other_variable
+           variable = 'literal text @ $100'
+           variable = "interpolated text: $var"
+           list     = [ val, val, val, val, ... ]
+           list     = [ val..val ]
+           hash     = { var => val, var => val, ... }
+    %]
+
+## DEFAULT
+
+Like [SET](https://metacpan.org/pod/SET), but variables are only set if currently unset (i.e. have no
+true value).
+
+    [% DEFAULT variable = value %]
+
+## INSERT
+
+Insert a file without any processing performed on the contents.
+
+    [% INSERT legalese.txt %]
+
+## PROCESS
+
+Process another template file or block and insert the generated output.
+Any template [BLOCK](https://metacpan.org/pod/BLOCK)s or variables defined or updated in the `PROCESS`ed
+template will thereafter be defined in the calling template.
+
+    [% PROCESS template %]
+    [% PROCESS template  var = val, ... %]
+
+## INCLUDE
+
+Similar to `PROCESS`, but using a local copy of the current variables.
+Any template `BLOCK`s or variables defined in the `INCLUDE`d template
+remain local to it.
+
+    [% INCLUDE template %]
+    [% INCLUDE template  var = val, ... %]
+
+## WRAPPER
+
+The content between the `WRAPPER` and corresponding `END` directives is first
+evaluated, with the output generated being stored in the `content` variable.
+The named template is then process as per `INCLUDE`.
+
+    [% WRAPPER layout %]
+       Some template markup [% blah %]...
+    [% END %]
+
+A simple `layout` template might look something like this:
+
+    Your header here...
+    [% content %]
+    Your footer here...
+
+## BLOCK
+
+Define a named template block for [INCLUDE](https://metacpan.org/pod/INCLUDE), [PROCESS](https://metacpan.org/pod/PROCESS) and [WRAPPER](https://metacpan.org/pod/WRAPPER)
+to use.
+
+    [% BLOCK hello %]
+       Hello World
+    [% END %]
+
+    [% INCLUDE hello %]
+
+## FOREACH
+
+Repeat the enclosed `FOREACH` ... `END` block for each value in the list.
+
+    [% FOREACH variable IN [ val, val, val ] %]    # either
+    [% FOREACH variable IN list %]                 # or
+       The variable is set to [% variable %]
+    [% END %]
+
+## WHILE
+
+The block enclosed between `WHILE` and `END` block is processed while
+the specified condition is true.
+
+    [% WHILE condition %]
+       content
+    [% END %]
+
+## IF / UNLESS / ELSIF / ELSE
+
+The enclosed block is processed if the condition is true / false.
+
+    [% IF condition %]
+       content
+    [% ELSIF condition %]
+     content
+    [% ELSE %]
+     content
+    [% END %]
+
+    [% UNLESS condition %]
+       content
+    [% # ELSIF/ELSE as per IF, above %]
+       content
+    [% END %]
+
+## SWITCH / CASE
+
+Multi-way switch/case statement.
+
+    [% SWITCH variable %]
+    [%   CASE val1 %]
+           content
+    [%   CASE [ val2, val3 ] %]
+           content
+    [%   CASE %]         # or [% CASE DEFAULT %]
+           content
+    [% END %]
+
+## MACRO
+
+Define a named macro.
+
+    [% MACRO name <directive> %]
+    [% MACRO name(arg1, arg2) <directive> %]
+    ...
+    [% name %]
+    [% name(val1, val2) %]
+
+## FILTER
+
+Process enclosed `FILTER` ... `END` block then pipe through a filter.
+
+    [% FILTER name %]                       # either
+    [% FILTER name( params ) %]             # or
+    [% FILTER alias = name( params ) %]     # or
+       content
+    [% END %]
+
+## USE
+
+Load a plugin module (see `Template::<Manual::Plugins`), or any regular Perl
+module when the `LOAD_PERL` option is set.
+
+    [% USE name %]                      # either
+    [% USE name( params ) %]            # or
+    [% USE var = name( params ) %]      # or
+    ...
+    [% name.method %]
+    [% var.method %]
+
+## PERL / RAWPERL
+
+Evaluate enclosed blocks as Perl code (requires the `EVAL_PERL` option to be
+set).
+
+    [% PERL %]
+     # perl code goes here
+     $stash->set('foo', 10);
+     print "set 'foo' to ", $stash->get('foo'), "\n";
+     print $context->include('footer', { var => $val });
+    [% END %]
+
+    [% RAWPERL %]
+       # raw perl code goes here, no magic but fast.
+       $output .= 'some output';
+    [% END %]
+
+## TRY / THROW / CATCH / FINAL
+
+Exception handling.
+
+    [% TRY %]
+     content
+       [% THROW type info %]
+    [% CATCH type %]
+     catch content
+       [% error.type %] [% error.info %]
+    [% CATCH %] # or [% CATCH DEFAULT %]
+     content
+    [% FINAL %]
+       this block is always processed
+    [% END %]
+
+## NEXT
+
+Jump straight to the next item in a `FOREACH` or `WHILE` loop.
+
+    [% NEXT %]
+
+## LAST
+
+Break out of `FOREACH` or `WHILE` loop.
+
+    [% LAST %]
+
+## RETURN
+
+Stop processing current template and return to including templates.
+
+    [% RETURN %]
+
+## STOP
+
+Stop processing all templates and return to caller.
+
+    [% STOP %]
+
+## TAGS
+
+Define new tag style or characters (default: `[%` `%]`).
+
+    [% TAGS html %]
+    [% TAGS <!-- --> %]
+
+## COMMENTS
+
+Ignored and deleted.
+
+    [% # this is a comment to the end of line
+       foo = 'bar'
+    %]
+
+    [%# placing the '#' immediately inside the directive
+        tag comments out the entire directive
+    %]
+
+# SOURCE CODE REPOSITORY
+
+The source code for the Template Toolkit is held in a public git repository
+on Github: [https://github.com/cpan-authors/Template2](https://github.com/cpan-authors/Template2)
+
+# AUTHOR
+
+Andy Wardley <abw@wardley.org> [http://wardley.org/](http://wardley.org/)
+
+# VERSION
+
+Template Toolkit version 3.103, released on May 21 2026.
+
+# SUPPORT
 
 The Template Toolkit mailing list provides a forum for discussing
 issues relating to the use and abuse of the Template Toolkit.  There
@@ -339,19 +727,9 @@ You can also use the web interface:
 For information about commercial support and consultancy for the Template
 Toolkit, please contact the author.
 
-# AI Policy
-
-This project uses AI tools to assist development. Humans review and approve every change before it is merged. See [AI\_POLICY.md](AI_POLICY.md) for details.
-
-# Author
-
-The Template Toolkit was written by Andy Wardley <abw@wardley.org> with
-the invaluable assistance and contributions from many other people.
-See Template::Manual::Credits for details.
-
-# Copyright
+# COPYRIGHT
 
 Copyright (C) 1996-2022 Andy Wardley.  All Rights Reserved.
 
-This is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.

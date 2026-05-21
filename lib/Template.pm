@@ -32,7 +32,7 @@ use File::Basename;
 use File::Path;
 use Scalar::Util qw(blessed);
 
-our $VERSION = '3.102';
+our $VERSION = '3.103';
 our $ERROR   = '';
 our $DEBUG   = 0;
 our $BINMODE = 0 unless defined $BINMODE;
@@ -220,6 +220,8 @@ sub _output {
 1;
 
 __END__
+
+=for markdown [![](https://github.com/cpan-authors/Template2/workflows/linux/badge.svg)](https://github.com/cpan-authors/Template2/actions) [![](https://github.com/cpan-authors/Template2/workflows/macos/badge.svg)](https://github.com/cpan-authors/Template2/actions)
 
 =head1 NAME
 
@@ -947,7 +949,7 @@ Ignored and deleted.
 =head1 SOURCE CODE REPOSITORY
 
 The source code for the Template Toolkit is held in a public git repository
-on Github: L<https://github.com/abw/Template2>
+on Github: L<https://github.com/cpan-authors/Template2>
 
 =head1 AUTHOR
 
@@ -955,7 +957,7 @@ Andy Wardley E<lt>abw@wardley.orgE<gt> L<http://wardley.org/>
 
 =head1 VERSION
 
-Template Toolkit version 3.100, released on July 13 2020.
+Template Toolkit version 3.103, released on May 21 2026.
 
 =head1 SUPPORT
 

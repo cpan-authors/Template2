@@ -592,7 +592,7 @@ sub _dotop {
 sub _assign {
     my ($self, $root, $item, $args, $value, $default) = @_;
     my $rootref = ref $root;
-    my $atroot  = ($root eq $self);
+    my $atroot  = (blessed $root && $root->isa(ref $self));
     my $result;
     $args ||= [ ];
     $default ||= 0;

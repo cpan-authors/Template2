@@ -34,6 +34,17 @@ my $DEBUG = grep(/-d/, @ARGV);
 #------------------------------------------------------------------------
 
 package ListObject;
+
+# A Template::Stash subclass to test that _assign() correctly recognises
+# stash-derived objects as hash roots (GH: _assign uses isa() not eq)
+package SubStash;
+use base 'Template::Stash';
+sub new {
+    my ($class, $params) = @_;
+    my $self = $class->SUPER::new($params || {});
+    return $self;
+}
+
 package HashObject;
 
 sub hello {
@@ -136,6 +147,7 @@ my $data = {
     num     => Numbersome->new("Numbersome"),
     getnum  => GetNumbersome->new,
     cmp_ol  => CmpOverloadObject->new(),
+    substash => SubStash->new({ color => 'red', size => 'large' }),
     clean   => sub {
         my $error = shift;
         $error =~ s/(\s*\(.*?\))?\s+at.*$//;
@@ -432,3 +444,24 @@ alpha BRAVO charlie
    mylist.0 %] [% mylist.1 %] [% mylist.2 %]
 -- expect --
 alpha bravo charlie
+
+# _assign() must use isa() not eq to detect stash-derived roots,
+# matching _dotop() and the XS stash implementation
+
+-- test --
+-- name _assign isa check: read substash properties --
+[% substash.color %] [% substash.size %]
+-- expect --
+red large
+
+-- test --
+-- name _assign isa check: assign to substash property --
+[% substash.color = 'blue'; substash.color %]
+-- expect --
+blue
+
+-- test --
+-- name _assign isa check: SET on substash property --
+[% SET substash.size = 'small'; substash.size %]
+-- expect --
+small

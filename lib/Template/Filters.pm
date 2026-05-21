@@ -634,8 +634,8 @@ sub redirect_filter_factory {
                                             'OUTPUT_PATH is not set'))
         unless $outpath;
 
-    $context->throw('redirect', "relative filenames are not supported: $file")
-        if $file =~ m{(^|/)\.\./};
+    $context->throw('redirect', "path traversal is not permitted: $file")
+        if $file =~ m{(^|[\\/])\.\.([\\/]|$)};
 
     $options = { binmode => $options } unless ref $options;
 

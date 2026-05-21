@@ -981,3 +981,39 @@ foo(bar)
 [% "foo(bar)" | uri %]
 -- expect --
 foo(bar)
+
+-- test --
+-- use evalperl --
+[% TRY -%]
+[% FILTER redirect('../traversal') %]
+should not reach here
+[% END -%]
+[% CATCH -%]
+ERROR [% error.type %]: [% error.info %]
+[% END %]
+-- expect --
+ERROR redirect: path traversal is not permitted: ../traversal
+
+-- test --
+-- use evalperl --
+[% TRY -%]
+[% FILTER redirect('..') %]
+should not reach here
+[% END -%]
+[% CATCH -%]
+ERROR [% error.type %]: [% error.info %]
+[% END %]
+-- expect --
+ERROR redirect: path traversal is not permitted: ..
+
+-- test --
+-- use evalperl --
+[% TRY -%]
+[% FILTER redirect('sub/../escape') %]
+should not reach here
+[% END -%]
+[% CATCH -%]
+ERROR [% error.type %]: [% error.info %]
+[% END %]
+-- expect --
+ERROR redirect: path traversal is not permitted: sub/../escape

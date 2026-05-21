@@ -87,6 +87,8 @@ my $params = {
     expose     => sub { undef $Template::Stash::PRIVATE },
     add        => sub { $_[0] + $_[1] },
 
+    'numlist' => [ 10, 20, 30 ],
+
     # don't define a 'z' - DEFAULT test relies on its non-existance
 };
 
@@ -463,7 +465,7 @@ bravo
 
 -- test --
 [% a = ''   b = '' -%]
-[% DEFAULT 
+[% DEFAULT
    a = c
    b = d
    z = r
@@ -472,6 +474,17 @@ bravo
 -- expect --
 charlie delta romeo
 
+-- test --
+[% DEFAULT numlist.0 = 999 -%]
+[% numlist.0 %]
+-- expect --
+10
+
+-- test --
+[% DEFAULT numlist.3 = 40 -%]
+[% numlist.3 %]
+-- expect --
+40
 
 #------------------------------------------------------------------------
 # 'global' vars

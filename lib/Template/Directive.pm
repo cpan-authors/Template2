@@ -936,6 +936,32 @@ EOF
 
 
 #------------------------------------------------------------------------
+# filter_expr($lnameargs, $expr)   apply filter to an expression value
+#                                  used for: SET foo = expr | filter
+#------------------------------------------------------------------------
+
+sub filter_expr {
+    my ($self, $lnameargs, $expr) = @_;
+    my ($name, $args, $alias) = @$lnameargs;
+    $name = shift @$name;
+    $args = &args($self, $args);
+    $args = $args ? "$args, $alias" : ", undef, $alias"
+        if $alias;
+    $name .= ", $args" if $args;
+
+    return "do {\n"
+         . "    my \$output = '';\n"
+         . "    my \$_tt_filter = \$context->filter($name)\n"
+         . "              || \$context->throw(\$context->error);\n"
+         . "\n"
+         . "    \$output .= $expr;\n"
+         . "\n"
+         . "    &\$_tt_filter(\$output);\n"
+         . "}";
+}
+
+
+#------------------------------------------------------------------------
 # capture($name, $block)
 #------------------------------------------------------------------------
 

@@ -1,19 +1,21 @@
-\.DS_Store
-\bdiffs?\b
+#!include_default
+
+# AI agent instructions — not for distribution
+^CLAUDE\.md$
+^\.claude/
+
+# Project files not shipped
 ^MANIFEST\.
 ^RELEASE
-^MYMETA
-^Makefile$
-^Template-Toolkit-\d\.\d+\.tar\.gz$
-~$
-\.old$
-\.\#
+\bdiffs?\b
 \.ttc$
 \.gz$
 \.defaults\.cfg
-^\.git
+^cpanfile$
+^\.editorconfig$
+
+# Unshipped top-level directories
 ^benchmark/
-^blib/
 ^clib/
 ^docsrc/
 ^docset/
@@ -21,6 +23,8 @@
 ^todo/
 ^todo_misc/
 ^junk/
+
+# Removed / experimental modules
 ^lib/Template/Stash/Shout
 ^lib/Template/Stash/Faster
 ^lib/Template/Docset
@@ -28,7 +32,8 @@
 ^lib/Template/Map
 ^lib/Template/Plugin/XML/View
 ^lib/Template/Plugin/List
-^pm_to_blib$
+
+# Maintainer-only scripts
 ^bin/prep
 ^bin/bundle
 ^bin/release
@@ -37,8 +42,15 @@
 ^bin/fixconfig
 ^bin/tt2prep
 ^bin/gifsplash
+^cpanfile\.plugins
+
+# Parser intermediate output
 ^parser/Parser\.output
+
+# Unshipped templates / docs / examples
 ^templates/skeleton
+^templates/xhtml
+^templates/jscript
 ^docs/\w+\.cfg
 ^docs/html/(?!README)
 ^docs/ttree.cfg
@@ -47,12 +59,16 @@
 ^examples/old
 ^examples/html/(?!README)
 ^images/splash
+
+# Disabled / external-dep tests
 ^t/dbi_test.cfg
 ^t/shout.t
 ^t/map.t
 ^t/docset.t
 ^t/xmlview.t
 ^t/test/src/complex.org
+
+# XS build artifacts
 ^xs/Makefile$
 ^xs/Stash.xs.orig
 ^xs/Stash.c
@@ -60,8 +76,3 @@
 ^xs/XS.bs
 ^xs/pm_to_blib
 ^xs/MYMETA
-^templates/xhtml
-^templates/jscript
-^\.travis.yml
-cpanfile
-^\.editorconfig

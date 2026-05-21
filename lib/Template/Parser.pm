@@ -412,6 +412,20 @@ sub split_text {
         for ($dir) {
             if (/^\#/) {
                 # comment out entire directive except for any end chomp flag
+                #
+                # Handle comments containing nested tag pairs, e.g.:
+                #   [%# [% foo %] %]
+                # The tokenizer splits at the first END_TAG, so the
+                # directive text may contain unbalanced START_TAGs.
+                # For each one, consume the matching END_TAG from
+                # the remaining template text.
+                my $nested = () = /$start/g;
+                while ($nested > 0 && $text =~ s/\A(.*?)$end//s) {
+                    my $extra = $1;
+                    $dirlines += ($extra =~ tr/\n//);
+                    $nested--;
+                    $nested += () = $extra =~ /$start/g;
+                }
                 $dir = ($dir =~ /($CHOMP_FLAGS)$/o) ? $1 : '';
             }
             else {

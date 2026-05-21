@@ -114,7 +114,7 @@ sub init {
     @$self{ keys %$image } = values %$image;
     $self->{ size } = [ $image->{ width }, $image->{ height } ];
 
-    $self->{ modtime } = (stat $self->{ file })[10];
+    $self->{ modtime } = (stat $self->{ file })[9];
 
     return $self;
 }

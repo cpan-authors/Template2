@@ -618,7 +618,7 @@ sub tokenise_directive {
                 (-?\d+(?:\.\d+)?)       # numbers
             |
                 # filename matches in $5
-                ( \/?\w+(?:(?:\/|::?)\w*)+ | \/\w+)
+                ( \/?\w+(?:(?:\/|::?)[a-zA-Z_]\w*)+ | \/[a-zA-Z_]\w*)
             |
                 # an identifier matches in $6
                 (\w+)                    # variable identifier
@@ -671,6 +671,19 @@ sub tokenise_directive {
         }
         # number
         elsif (defined ($token = $4)) {
+            # A negative number like -2 that immediately follows a value-producing
+            # token (IDENT, NUMBER, LITERAL, ')' or ']') should be split into a
+            # BINOP '-' and a positive number.  Without this, "x-2" tokenises as
+            # IDENT 'x', NUMBER '-2' instead of IDENT 'x', BINOP '-', NUMBER '2'.
+            if ($token =~ /^-/ && @tokens >= 2) {
+                my $prev_type = $tokens[-2];
+                if ($prev_type eq 'IDENT' || $prev_type eq 'NUMBER'
+                    || $prev_type eq 'LITERAL' || $prev_type eq ')'
+                    || $prev_type eq ']') {
+                    push(@tokens, 'BINOP', '-');
+                    $token = substr($token, 1);
+                }
+            }
             $type = 'NUMBER';
         }
         elsif (defined($token = $5)) {

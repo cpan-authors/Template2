@@ -163,3 +163,26 @@ two: 2[The Title] -> one: 2[The Title]
 [% triple(10) %]
 -- expect --
 30
+
+-- test --
+-- name expressions in macro args (GH #315) --
+[% MACRO show(n) GET n -%]
+[% x = 5 -%]
+[% show(x) %],[% show(x+2) %],[% show(x-2) %],[% show(x*2) %],[% show(x/2) %]
+-- expect --
+5,7,3,10,2.5
+
+-- test --
+-- name negative number in macro arg --
+[% MACRO show(n) GET n -%]
+[% show(-3) %]
+-- expect --
+-3
+
+-- test --
+-- name multiple args with expressions --
+[% MACRO add(a, b) GET a + b -%]
+[% x = 10 -%]
+[% add(x-3, 2) %],[% add(x/2, x*3) %]
+-- expect --
+9,35

@@ -37,11 +37,15 @@ our $DEBUG     = 0 unless defined $DEBUG;
 our $WHILE_MAX = 1000 unless defined $WHILE_MAX;
 our $PRETTY    = 0 unless defined $PRETTY;
 our $OUTPUT    = '$output .= ';
+our $FOREACH_LOCALISE = 0 unless defined $FOREACH_LOCALISE;
 
 
 sub _init {
     my ($self, $config) = @_;
     $self->{ NAMESPACE } = $config->{ NAMESPACE };
+    $self->{ FOREACH_LOCALISE } = defined $config->{ FOREACH_LOCALISE }
+        ? $config->{ FOREACH_LOCALISE }
+        : $FOREACH_LOCALISE;
     return $self;
 }
 
@@ -441,9 +445,16 @@ sub foreach {
 
     my ($loop_save, $loop_set, $loop_restore, $setiter);
     if ($target) {
+        my $localise = ref $self ? $self->{ FOREACH_LOCALISE } : $FOREACH_LOCALISE;
         $loop_save    = 'eval { $_tt_oldloop = ' . &ident($self, ["'loop'"]) . ' }';
+        if ($localise) {
+            $loop_save   .= "; my \$_tt_oldtarget = \$stash->{'$target'}";
+        }
         $loop_set     = "\$stash->{'$target'} = \$_tt_value";
         $loop_restore = "\$stash->set('loop', \$_tt_oldloop)";
+        if ($localise) {
+            $loop_restore .= "; \$stash->{'$target'} = \$_tt_oldtarget";
+        }
     }
     else {
         $loop_save    = '$stash = $context->localise()';

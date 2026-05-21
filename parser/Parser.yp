@@ -15,10 +15,11 @@
 #
 # WARNINGS
 #   Expect 1 reduce/reduce conflict.  This can safely be ignored.
-#   Now also expect 1 shift/reduce conflict, created by adding a rule
-#   to 'args' to allow assignments of the form 'foo.bar = baz'.  It
-#   should be possible to fix the problem by rewriting some rules, but
-#   I'm loathed to hack it up too much right now.  Maybe later.
+#   Now also expect 5 shift/reduce conflicts:
+#   - 1 from the 'args' rule allowing assignments of the form 'foo.bar = baz'
+#   - 4 from the unary minus rule ('-' expr), where '-' is ambiguous between
+#     binary subtraction and unary negation in args/list contexts.  The default
+#     shift resolution correctly favors binary minus in expression context.
 #
 # COPYRIGHT
 #   Copyright (C) 1996-2022 Andy Wardley.  All Rights Reserved.
@@ -46,10 +47,11 @@
 %left DOT
 %left CMPOP
 %left BINOP
-%left '+'
+%left '+' '-'
 %left '/'
 %left DIV
 %left MOD
+%right UMINUS
 %left TO
 %%
 
@@ -310,7 +312,7 @@ list:       list term               { "$_[1], $_[2]"                      }
         |   term
 ;
 
-range:      sterm TO sterm          { $_[1] . '..' . $_[3]                }
+range:      expr TO expr            { $_[1] . '..' . $_[3]                }
 ;
 
 
@@ -348,6 +350,8 @@ item:       IDENT                   { "'$_[1]'"                           }
 expr:       expr BINOP expr         { "$_[1] $_[2] $_[3]"                 }
         |   expr '/' expr           { "$_[1] $_[2] $_[3]"                 }
         |   expr '+' expr           { "$_[1] $_[2] $_[3]"                 }
+        |   expr '-' expr           { "$_[1] $_[2] $_[3]"                 }
+        |   '-' expr %prec UMINUS   { "- $_[2]"                           }
         |   expr DIV expr           { "int($_[1] / $_[3])"                }
         |   expr MOD expr           { "$_[1] % $_[3]"                     }
         |   expr CMPOP expr         { "$_[1] $CMPOP{ $_[2] } $_[3]"       }

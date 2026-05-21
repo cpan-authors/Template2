@@ -71,7 +71,9 @@ chunks:     chunks chunk            { push(@{$_[1]}, $_[2])
 
 chunk:      TEXT                    { $factory->textblock($_[1])          }
         |   statement ';'           { return '' unless $_[1];
-                                      $_[0]->location() . $_[1];
+                                      my $line = delete $_[0]->{_block_start_line};
+                                      $line = $_[2] unless defined $line;
+                                      $_[0]->location($line) . $_[1];
                                     }
 ;
 
@@ -134,10 +136,12 @@ atomdir:    GET expr                { $factory->get($_[2])                }
 ;
 
 condition:  IF expr ';'
-              block else END        { $factory->if(@_[2, 4, 5])           }
+              block else END        { $_[0]->{_block_start_line} = $_[3];
+                                      $factory->if(@_[2, 4, 5])           }
         |   atomexpr IF expr        { $factory->if(@_[3, 1])              }
         |   UNLESS expr ';'
-              block else END        { $factory->if("!($_[2])", @_[4, 5])  }
+              block else END        { $_[0]->{_block_start_line} = $_[3];
+                                      $factory->if("!($_[2])", @_[4, 5])  }
         |   atomexpr UNLESS expr    { $factory->if("!($_[3])", $_[1])     }
 ;
 
@@ -149,7 +153,8 @@ else:       ELSIF expr ';'
 ;
 
 switch:     SWITCH expr ';'
-              block case END        { $factory->switch(@_[2, 5])          }
+              block case END        { $_[0]->{_block_start_line} = $_[3];
+                                      $factory->switch(@_[2, 5])          }
 ;
 
 case:       CASE term ';' block
@@ -161,10 +166,12 @@ case:       CASE term ';' block
 ;
 
 loop:       FOR loopvar ';'         { $_[0]->enter_block('FOR')           }
-                block END           { $factory->foreach(@{$_[2]}, $_[5], $_[0]->leave_block)  }
+                block END           { $_[0]->{_block_start_line} = $_[3];
+                                      $factory->foreach(@{$_[2]}, $_[5], $_[0]->leave_block)  }
         |   atomexpr FOR loopvar    { $factory->foreach(@{$_[3]}, $_[1])  }
         |   WHILE expr ';'          { $_[0]->enter_block('WHILE')         }
-              block END             { $factory->while(@_[2, 5], $_[0]->leave_block) }
+              block END             { $_[0]->{_block_start_line} = $_[3];
+                                      $factory->while(@_[2, 5], $_[0]->leave_block) }
         |   atomexpr WHILE expr     { $factory->while(@_[3, 1]) }
 ;
 
@@ -174,13 +181,15 @@ loopvar:    IDENT ASSIGN term args  { [ @_[1, 3, 4] ]                     }
 ;
 
 wrapper:    WRAPPER nameargs ';'
-              block END             { $factory->wrapper(@_[2, 4])         }
+              block END             { $_[0]->{_block_start_line} = $_[3];
+                                      $factory->wrapper(@_[2, 4])         }
         |   atomexpr
               WRAPPER nameargs      { $factory->wrapper(@_[3, 1])         }
 ;
 
 try:        TRY ';'
-              block final END       { $factory->try(@_[3, 4])             }
+              block final END       { $_[0]->{_block_start_line} = $_[2];
+                                      $factory->try(@_[3, 4])             }
 ;
 
 final:      CATCH filename ';'
@@ -200,12 +209,14 @@ use:        USE lnameargs           { $factory->use($_[2])                }
 ;
 
 view:       VIEW nameargs ';'       { $_[0]->push_defblock();             }
-              block END             { $factory->view(@_[2,5],
+              block END             { $_[0]->{_block_start_line} = $_[3];
+                                      $factory->view(@_[2,5],
                                                      $_[0]->pop_defblock) }
 ;
 
 perl:       PERL ';'                { ${$_[0]->{ INPERL }}++;             }
-              block END             { ${$_[0]->{ INPERL }}--;
+              block END             { $_[0]->{_block_start_line} = $_[2];
+                                      ${$_[0]->{ INPERL }}--;
                                       $_[0]->{ EVAL_PERL }
                                       ? $factory->perl($_[4])
                                       : $factory->no_perl();              }
@@ -220,7 +231,8 @@ rawperl:    RAWPERL                 { ${$_[0]->{ INPERL }}++;
 ;
 
 filter:     FILTER lnameargs ';'
-              block END             { $factory->filter(@_[2,4])           }
+              block END             { $_[0]->{_block_start_line} = $_[3];
+                                      $factory->filter(@_[2,4])           }
         |   atomexpr FILTER
               lnameargs             { $factory->filter(@_[3,1])           }
 ;
@@ -248,7 +260,8 @@ blockargs:  metadata
 ;
 
 anonblock:  BLOCK blockargs ';' block END
-                                    { local $" = ', ';
+                                    { $_[0]->{_block_start_line} = $_[3];
+                                      local $" = ', ';
                                       print STDERR "experimental block args: [@{ $_[2] }]\n"
                                           if $_[2];
                                       $factory->anon_block($_[4])         }

@@ -175,20 +175,18 @@ sub text_lcfirst {
 }
 
 sub text_trim {
-    for ($_[0]) {
-        s/^\s+//;
-        s/\s+$//;
-    }
-    return $_[0];
+    my $text = $_[0];
+    $text =~ s/^\s+//;
+    $text =~ s/\s+$//;
+    return $text;
 }
 
 sub text_collapse {
-    for ($_[0]) {
-        s/^\s+//;
-        s/\s+$//;
-        s/\s+/ /g
-    }
-    return $_[0];
+    my $text = $_[0];
+    $text =~ s/^\s+//;
+    $text =~ s/\s+$//;
+    $text =~ s/\s+/ /g;
+    return $text;
 }
 
 sub text_match {

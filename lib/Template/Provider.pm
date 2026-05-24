@@ -80,7 +80,7 @@ my $boms = [
 ];
 
 # regex to match relative paths
-our $RELATIVE_PATH = qr[(?:^|/)\.+/];
+our $RELATIVE_PATH = qr[(?:^|[/\\])\.+[/\\]];
 
 #========================================================================
 #                         -- PUBLIC METHODS --

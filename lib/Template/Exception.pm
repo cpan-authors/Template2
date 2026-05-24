@@ -26,7 +26,7 @@ use constant INFO  => 1;
 use constant TEXT  => 2;
 use overload q|""| => "as_string", fallback => 1;
 
-our $VERSION = '3.104';
+our $VERSION = '3.105';
 
 
 #------------------------------------------------------------------------

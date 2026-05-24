@@ -28,7 +28,7 @@ use base qw( Exporter );
 our ( @EXPORT_OK, %EXPORT_TAGS );
 our ( $DEBUG_OPTIONS, @STATUS, @ERROR, @CHOMP, @DEBUG, @ISA );
 
-our $VERSION = '3.104';
+our $VERSION = '3.105';
 
 #========================================================================
 #                         ----- EXPORTER -----

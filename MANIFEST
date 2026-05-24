@@ -263,6 +263,7 @@ t/zz-plugin-leak.t
 t/zz-pmv.t
 t/zz-pod-coverage.t
 t/zz-pod-kwalitee.t
+t/zz-process-leak.t
 t/zz-stash-xs-leak.t
 t/zz-url2.t
 testrules.yml

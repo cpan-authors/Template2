@@ -121,7 +121,7 @@ exit;
 sub write_text {    # could also use File::Slurper::write_file ....
     my ( $file, $content ) = @_;
 
-    open( my $fh, '>', $file ) or die $!;
+    open( my $fh, '>:raw', $file ) or die $!;
     print {$fh} $content;
     close($fh);
 }

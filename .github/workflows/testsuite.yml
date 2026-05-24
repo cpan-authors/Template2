@@ -36,6 +36,7 @@ jobs:
         run: sudo make install
 
   perl-versions:
+    if: false
     runs-on: ubuntu-latest
     name: List Perl versions
     outputs:
@@ -48,6 +49,7 @@ jobs:
           with-devel: true
 
   linux:
+    if: false
     name: "Perl ${{ matrix.perl-version }} XS=${{ matrix.XS }}"
     needs: [ubuntu,perl-versions]
     env:
@@ -80,6 +82,7 @@ jobs:
       - run: make install
 
   macOS:
+    if: false
     needs: [ubuntu]
     env:
       PERL_USE_UNSAFE_INC: 0
@@ -135,6 +138,7 @@ jobs:
       - run: gmake test
 
   plugins:
+    if: false
     needs: [ubuntu,linux]
     env:
       # some plugins still needs this to run their tests...

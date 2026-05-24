@@ -8,7 +8,7 @@
 
 use strict;
 use lib qw( ./lib ../lib );
-use Test::More tests => 28;
+use Test::More tests => 29;
 
 use File::Temp qw( tempdir );
 use Template;
@@ -105,12 +105,18 @@ my $dir = -d 't' ? 't/test' : 'test';
 #------------------------------------------------------------------------
 
 {
+    my @warnings;
+    local $SIG{__WARN__} = sub { push @warnings, @_ };
+
     my $ok = Template::Document->write_perl_file(undef, {});
     ok(!$ok, 'write_perl_file returns undef for undef filename');
     like(Template::Document->error(), qr/invalid filename/, 'error mentions invalid filename');
 
     $ok = Template::Document->write_perl_file('', {});
     ok(!$ok, 'write_perl_file returns undef for empty filename');
+
+    is(scalar @warnings, 0, 'no warnings from undef/empty filename')
+        or diag("warnings: @warnings");
 }
 
 #------------------------------------------------------------------------

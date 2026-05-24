@@ -51,6 +51,9 @@ sub new {
         $line =~ s/\r$//;
     }
 
+    return $class->error("first line of file must contain field names")
+        unless defined $line;
+
     (@fields = split(/\s*$delim\s*/, $line))
         || return $class->error("first line of file must contain field names");
 

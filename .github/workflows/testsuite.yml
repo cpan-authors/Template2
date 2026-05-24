@@ -107,6 +107,33 @@ jobs:
       - run: make test
       - run: sudo make install
 
+  windows:
+    needs: [ubuntu]
+    env:
+      PERL_USE_UNSAFE_INC: 0
+      AUTHOR_TESTING: 1
+      AUTOMATED_TESTING: 1
+      RELEASE_TESTING: 1
+
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        XS: [y, n]
+
+    steps:
+      - uses: actions/checkout@v6
+      - run: perl -V
+      - name: install dependencies
+        uses: perl-actions/install-with-cpm@v2
+        with:
+          sudo: false
+          cpanfile: "cpanfile"
+      - name: Makefile.PL
+        run: perl Makefile.PL TT_XS_DEFAULT=${{ matrix.XS }} TT_XS_ENABLE=${{ matrix.XS }} TT_QUIET=n TT_ACCEPT=y
+      - run: gmake test
+
   plugins:
     needs: [ubuntu,linux]
     env:

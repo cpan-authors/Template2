@@ -23,7 +23,7 @@ use warnings;
 use base 'Template::Plugin';
 use Text::Wrap;
 
-our $VERSION = '3.100';
+our $VERSION = '3.104';
 
 sub new {
     my ($class, $context, $format) = @_;;

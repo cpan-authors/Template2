@@ -28,7 +28,7 @@ use File::Spec;
 use File::Basename;
 use base 'Template::Plugin';
 
-our $VERSION = '3.100';
+our $VERSION = '3.104';
 
 our @STAT_KEYS = qw(
     dev ino mode nlink uid gid rdev size

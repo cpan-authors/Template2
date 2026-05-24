@@ -27,7 +27,7 @@ use overload
     q|""| => "text",
     fallback => 1;
 
-our $VERSION = '3.100';
+our $VERSION = '3.104';
 our $ERROR   = '';
 
 

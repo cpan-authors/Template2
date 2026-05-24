@@ -26,7 +26,7 @@ use File::Spec;
 use Template::Plugin::File;
 use base 'Template::Plugin::File';
 
-our $VERSION = '3.100';
+our $VERSION = '3.104';
 
 
 #------------------------------------------------------------------------

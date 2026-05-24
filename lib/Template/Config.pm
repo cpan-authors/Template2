@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use base 'Template::Base';
 
-our $VERSION   = '3.100';
+our $VERSION   = '3.104';
 
 our $DEBUG;
 $DEBUG     = 0 unless defined $DEBUG;

@@ -23,7 +23,7 @@ use warnings;
 use Scalar::Util qw( blessed looks_like_number );
 use Template::Filters;
 
-our $VERSION = '3.100';
+our $VERSION = '3.104';
 our $DEBUG   = 0 unless defined $DEBUG;
 
 our $ROOT_VMETHODS = {

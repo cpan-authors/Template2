@@ -28,7 +28,7 @@ use strict;
 use warnings;
 use base 'Template::Base';
 
-our $VERSION = '2.92';
+our $VERSION = '3.104';
 
 use Template;
 use AppConfig qw( :expand );

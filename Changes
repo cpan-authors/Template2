@@ -1,3 +1,33 @@
+3.104 2026-05-24
+
+  [Bug Fixes]
+  - PR #370 Repair broken List plugin and harden Plugins.pm error matching (GH #358, #359, #360, #361, #362)
+  - PR #379 Allow .defined vmethod on undefined vars in STRICT mode (GH #170)
+  - PR #381 Add PRINTF support to PERL blocks (GH #138)
+  - PR #382 Preserve empty string values in URL plugin params (GH #125)
+  - PR #384 Use isa() instead of eq for stash root detection in _assign()
+  - PR #389 Handle nested tag pairs inside comments (GH #151)
+  - PR #390 Prevent infinite loop in Datafile plugin on empty/comment-only files
+  - PR #391 Use mtime instead of ctime for Image plugin modtime
+  - PR #392 Escape quotes in Dumper dump_html and document all options (GH #195)
+  - PR #395 Prevent trim and collapse VMethods from mutating stash variables
+  - PR #407 Skip spurious zero-length matches in replace vmethod (GH #171)
+  - PR #409 Fix text_expect typo in Template::Test POD (GH #96)
+  - Correct join() calls in Context debug messages
+
+  [Maintenance]
+  - PR #388 Document string comparison semantics of == and != (GH #129)
+  - PR #398 Adopt defined-or operator; raise minimum Perl to 5.10
+  - PR #404 Fix non-deterministic test count in compile1.t (GH #399)
+  - PR #405 Skip t/date_utf8.t on UTC systems (GH #402)
+  - PR #406 Remove unconditional skip_all from plugin leak test (GH #403, #213)
+  - PR #408 Add List, Math, and View to Template::Manual::Plugins (GH #101)
+  - Declare MIN_PERL_VERSION 5.010 in Makefile.PL with CONFIGURE_REQUIRES on EUMM 6.48
+  - Use ExtUtils::MakeMaker::prompt in Makefile.PL (CPANTS kwalitee: no_stdin_for_prompting)
+  - Drop stale HACKING/INSTALL MANIFEST entries; add missing t/ files
+  - Bump perl-versions and install-with-cpm GitHub Actions to v2
+  - Add bump-version skill for release version updates
+
 3.103 2026-05-21
 
   [Improvements]

@@ -32,7 +32,7 @@ use base 'Template::Base';
 use Template::Constants;
 use Template::Exception;
 
-our $VERSION   = '3.100';
+our $VERSION   = '3.104';
 our $DEBUG     = 0 unless defined $DEBUG;
 our $WHILE_MAX = 1000 unless defined $WHILE_MAX;
 our $PRETTY    = 0 unless defined $PRETTY;

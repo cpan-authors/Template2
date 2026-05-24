@@ -142,6 +142,10 @@ my %opts = (
     'NAME'             => 'Template',
     'DISTNAME'     => 'Template-Toolkit',
     'VERSION_FROM' => 'lib/Template.pm',
+    'MIN_PERL_VERSION' => '5.010',
+    'CONFIGURE_REQUIRES' => {
+        'ExtUtils::MakeMaker' => '6.48',
+    },
     'EXE_FILES'    => [ 'bin/tpage', 'bin/ttree' ],
     'PMLIBDIRS'    => [ 'lib' ],
     'DIR'          => [ ],

@@ -106,7 +106,7 @@ sub new {
         _NCOLS   => $cols,
         _COLOFF  => $coloff,
         _OVERLAP => $overlap,
-        _PAD     => defined $params->{ PAD } ? $params->{ PAD } : 1,
+        _PAD     => $params->{ PAD } // 1,
     }, $class;
 }
 

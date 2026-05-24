@@ -69,8 +69,7 @@ sub today {
 
 sub tomorrow {
     my ($self, $dayno) = @_;
-    $dayno = $self->{ DAY }++
-        unless defined $dayno;
+    $dayno //= $self->{ DAY }++;
     $dayno %= 7;
     return $self->{ DAYS }->[$dayno];
 }

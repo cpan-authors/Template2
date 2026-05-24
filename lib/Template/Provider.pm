@@ -334,9 +334,7 @@ sub _init {
     my $debug;
 
     # tweak delim to ignore C:/
-    unless (defined $dlim) {
-        $dlim = MSWin32 ? qr/:(?!\\|\/)/ : qr/:/;
-    }
+    $dlim //= MSWin32 ? qr/:(?!\\|\/)/ : qr/:/;
 
     # coerce INCLUDE_PATH to an array ref, if not already so
     $path = [ split(/$dlim/, $path) ]
@@ -452,7 +450,7 @@ sub _fetch {
     my $uncompiled_template_mtime = $self->_template_modified( $name );  # does template exist?
 
     # some templates like Provider::FromDATA does not provide mtime information
-    $uncompiled_template_mtime = 0 unless defined $uncompiled_template_mtime;
+    $uncompiled_template_mtime //= 0;
 
     # Is there an up-to-date compiled version on disk?
     if (my $template_mtime = $self->_compiled_is_current($name, $uncompiled_template_mtime)) {
@@ -618,15 +616,15 @@ sub _load {
 
     $alias = $name unless defined $alias or ref $name;
 
-    $self->debug("_load($name, ", defined $alias ? $alias : '<no alias>',
+    $self->debug("_load($name, ", $alias // '<no alias>',
                  ')') if $self->{ DEBUG };
 
     # SCALAR ref is the template text
     if (ref $name eq 'SCALAR') {
         # $name can be a SCALAR reference to the input text...
         return {
-            name => defined $alias ? $alias : 'input text',
-            path => defined $alias ? $alias : 'input text',
+            name => $alias // 'input text',
+            path => $alias // 'input text',
             text => $$name,
             time => $now,
             load => 0,
@@ -639,8 +637,8 @@ sub _load {
         my $text = <$name>;
         $text = $self->_decode_unicode($text) if $self->{ UNICODE };
         return {
-            name => defined $alias ? $alias : 'input file handle',
-            path => defined $alias ? $alias : 'input file handle',
+            name => $alias // 'input file handle',
+            path => $alias // 'input file handle',
             text => $text,
             time => $now,
             load => 0,
@@ -687,7 +685,7 @@ sub _refresh {
 
     $self->debug(
         "_refresh([ ",
-        join(', ', map { defined $_ ? $_ : '<undef>' } @$slot),
+        join(', ', map { $_ // '<undef>' } @$slot),
         '])'
     ) if $self->{ DEBUG };
 
@@ -820,7 +818,7 @@ sub _store {
         $slot = [ undef, $name, $data, $load, $head, time ];
         $head->[ PREV ] = $slot if $head;
         $self->{ HEAD } = $slot;
-        $self->{ TAIL } = $slot unless $self->{ TAIL };
+        $self->{ TAIL } ||= $slot;
 
         # add lookup from name to slot and increment nslots
         $self->{ LOOKUP }->{ $name } = $slot;

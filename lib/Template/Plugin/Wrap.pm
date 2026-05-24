@@ -34,10 +34,9 @@ sub new {
 sub tt_wrap {
     my $text  = shift;
     my $width = shift || 72;
-    my $itab  = shift;
-    my $ntab  = shift;
-    $itab = '' unless defined $itab;
-    $ntab = '' unless defined $ntab;
+    my $itab  = shift // '';
+    my $ntab  = shift // '';
+
     $Text::Wrap::columns = $width;
     Text::Wrap::wrap($itab, $ntab, $text);
 }

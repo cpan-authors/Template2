@@ -228,9 +228,7 @@ sub get {
         $result = $self->_dotop($root, $ident, $args);
     }
 
-    return defined $result
-        ? $result
-        : $self->undefined($ident, $args);
+    return $result // $self->undefined($ident, $args);
 }
 
 
@@ -285,7 +283,7 @@ sub set {
         }
     }
 
-    return defined $result ? $result : '';
+    return $result // '';
 }
 
 

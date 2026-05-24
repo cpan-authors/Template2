@@ -5,7 +5,7 @@ Guidelines for AI agents working on the Template Toolkit codebase.
 ## Project overview
 
 The Template Toolkit (TT) is a Perl template processing system. The primary module
-is `lib/Template.pm`. The codebase requires **Perl 5.006+**.
+is `lib/Template.pm`. The codebase requires **Perl 5.10+**.
 
 ## Build and test
 

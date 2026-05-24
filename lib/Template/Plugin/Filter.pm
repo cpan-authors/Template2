@@ -40,7 +40,7 @@ sub new {
         no strict 'refs';
         $dynamic = ${"$class\::DYNAMIC"};
     }
-    $dynamic = $DYNAMIC unless defined $dynamic;
+    $dynamic //= $DYNAMIC;
 
     my $self = bless {
         _CONTEXT => $context,

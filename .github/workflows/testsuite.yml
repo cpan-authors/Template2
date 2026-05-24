@@ -44,7 +44,7 @@ jobs:
       - id: action
         uses: perl-actions/perl-versions@v2
         with:
-          since-perl: v5.8
+          since-perl: v5.10
           with-devel: true
 
   linux:

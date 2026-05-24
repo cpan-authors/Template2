@@ -21,7 +21,7 @@ package Template;
 
 use strict;
 use warnings;
-use 5.006;
+use 5.010;
 use base 'Template::Base';
 
 use Template::Config;
@@ -56,8 +56,7 @@ sub process {
     my $options = (@opts == 1) && ref($opts[0]) eq 'HASH'
         ? shift(@opts) : { @opts };
 
-    $options->{ binmode } = $BINMODE
-        unless defined $options->{ binmode };
+    $options->{ binmode } //= $BINMODE;
 
     # we're using this for testing in t/output.t and t/filter.t so
     # don't remove it if you don't want tests to fail...

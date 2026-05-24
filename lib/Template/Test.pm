@@ -292,8 +292,7 @@ sub test_expect {
         # split input by a line like "-- expect --"
         ($input, $expect) =
             split(/^\s*--\s*expect\s*--\s*\n/im, $input);
-        $expect = ''
-            unless defined $expect;
+        $expect //= '';
 
         $output = '';
 

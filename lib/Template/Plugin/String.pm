@@ -42,9 +42,7 @@ sub new {
 
     $class = ref($class) || $class;
 
-    my $text = defined $config->{ text }
-        ? $config->{ text }
-        : (@args ? shift(@args) : '');
+    my $text = $config->{ text } // (@args ? shift(@args) : '');
 
 #    print STDERR "text: [$text]\n";
 #    print STDERR "class: [$class]\n";
@@ -218,7 +216,7 @@ sub right {
 
 sub format {
     my ($self, $format) = @_;
-    $format = '%s' unless defined $format;
+    $format //= '%s';
     $self->{ text } = sprintf($format, $self->{ text });
     return $self;
 }
@@ -344,7 +342,7 @@ sub repeat {
 sub replace {
     my ($self, $search, $replace) = @_;
     return $self unless defined $search;
-    $replace = '' unless defined $replace;
+    $replace //= '';
     my $prev_end = -1;
     $self->{ text } =~ s{$search}{
         my $s = $-[0];
@@ -362,7 +360,7 @@ sub replace {
 
 sub remove {
     my ($self, $search) = @_;
-    $search = '' unless defined $search;
+    $search //= '';
     $self->{ text } =~ s/$search//g;
     return $self;
 }
@@ -370,9 +368,9 @@ sub remove {
 
 sub split {
     my $self  = CORE::shift;
-    my $split = CORE::shift;
+    my $split = CORE::shift // '\s+';
     my $limit = CORE::shift || 0;
-    $split = '\s+' unless defined $split;
+
     return [ split($split, $self->{ text }, $limit) ];
 }
 

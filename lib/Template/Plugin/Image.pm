@@ -66,7 +66,7 @@ sub new {
     my ($root, $file, $type);
 
     # name can be a positional or named argument
-    $name = $config->{ name } unless defined $name;
+    $name //= $config->{ name };
 
     return $class->throw('no image file specified')
         unless defined $name and length $name;
@@ -78,7 +78,7 @@ sub new {
         $file = File::Spec->catfile($root, $name);
     }
     else {
-        $file = defined $config->{file} ? $config->{file} : $name;
+        $file = $config->{file} // $name;
     }
 
     # Make a note of whether we are using Image::Size or
@@ -86,7 +86,7 @@ sub new {
     $type = $INC{"Image/Size.pm"} ? "Image::Size" : "Image::Info";
 
     # set a default (empty) alt attribute for tag()
-    $config->{ alt } = '' unless defined $config->{ alt };
+    $config->{ alt } //= '';
 
     # do we want to check to see if file exists?
     bless {
@@ -162,8 +162,7 @@ sub tag {
     # XHTML spec says that the alt attribute is mandatory, so who
     # are we to argue?
 
-    $options->{ alt } = $self->{ alt }
-        unless defined $options->{ alt };
+    $options->{ alt } //= $self->{ alt };
 
     if (%$options) {
         for my $key (sort keys %$options) {

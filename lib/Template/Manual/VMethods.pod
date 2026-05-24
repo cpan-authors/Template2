@@ -17,6 +17,29 @@
 
 Template::Manual::VMethods - Virtual Methods
 
+=head1 Root Virtual Methods
+
+These virtual methods can be applied to any variable type (scalars, hash
+arrays, and lists).
+
+=head2 inc
+
+Increments the value of a variable and returns the new value.
+
+    [% counter = 10;
+       counter.inc;        # 11
+       counter             # 11 (variable is modified in place)
+    %]
+
+=head2 dec
+
+Decrements the value of a variable and returns the new value.
+
+    [% counter = 10;
+       counter.dec;        # 9
+       counter             # 9 (variable is modified in place)
+    %]
+
 =head1 Scalar Virtual Methods
 
 =head2 chunk(size)
@@ -71,6 +94,25 @@ Return the value as a hash reference containing a single entry with
 the key C<value> indicating the original scalar value.  As with the
 C<list> virtual method, this is generally used to help massage data
 into different formats.
+
+=head2 html
+
+Returns the text with any HTML special characters escaped to their
+entity equivalents: C<< & >> to C<< &amp; >>, C<< < >> to C<< &lt; >>,
+C<< > >> to C<< &gt; >>, C<< " >> to C<< &quot; >>, and C<< ' >> to
+C<< &#39; >>.
+
+    [% text = '<script>alert("XSS")</script>' %]
+    [% text.html %]
+    # &lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;
+
+=head2 item
+
+Returns the value itself.  This is generally not useful by itself but
+provides consistency with the hash and list C<item> methods.
+
+    [% foo = 'bar' %]
+    [% foo.item %]                # bar
 
 =head2 lcfirst
 
@@ -260,6 +302,15 @@ Returns the text in upper case.
     [% word = 'bird' %]
     [% word.upper %]          # BIRD
 
+=head2 xml
+
+Same as C<html> but escapes single quotes to C<< &apos; >> (the XML
+named entity) instead of C<< &#39; >> (the HTML numeric reference).
+
+    [% text = "Matt's <tag>" %]
+    [% text.xml %]
+    # Matt&apos;s &lt;tag&gt;
+
 =head1 Hash Virtual Methods
 
 =head2 keys
@@ -416,6 +467,13 @@ Returns true if the hash is empty:
     [% IF config.empty %]
        No configuration available
     [% END %]
+
+=head2 hash
+
+Returns the hash itself.  This is provided for consistency with the
+scalar and list C<hash> methods, and is a no-op.
+
+    [% hash.hash %]  # same as hash
 
 =head2 item
 
@@ -653,6 +711,14 @@ keys generated for each item starting at the number specified.
 Returns an item from the list using an index passed as an argument.
 
     [% list.item(0) %]  # same as list.0
+
+=head2 list
+
+Returns the list itself.  This is provided for consistency with the
+scalar C<list> method (which wraps a scalar in a list) and is a no-op
+on list references.
+
+    [% list.list %]  # same as list
 
 =head1 Automagic Promotion of Scalar to List for Virtual Methods
 

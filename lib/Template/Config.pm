@@ -35,7 +35,7 @@ our $PLUGINS   = 'Template::Plugins';
 our $PROVIDER  = 'Template::Provider';
 our $SERVICE   = 'Template::Service';
 our $STASH;
-$STASH     = 'Template::Stash';
+$STASH     = 'Template::Stash::XS';
 our $CONSTANTS = 'Template::Namespace::Constants';
 
 our $LATEX_PATH;

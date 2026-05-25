@@ -33,6 +33,25 @@ plan( tests => 6 );
 
 note "Searching for leak using Test::LeakTrace...";
 
+# Warm up: exercise all code paths once so that one-time regex
+# compilations and singleton allocations don't appear as leaks
+# on older Perls where qr// interpolation caches REGEXP SVs.
+{
+    my $warmup_text = <<'EOT';
+[% FOREACH item IN data -%]
+[% item.val %]
+[% FOREACH data IN item.stuff -%]
+... one item
+[% END -%]
+[% END -%]
+EOT
+    my $warmup_out = '';
+    my $tt = Template->new();
+    $tt->process(\$warmup_text, {
+        data => [ { val => 'x', stuff => [ { name => 'y' } ] } ]
+    }, \$warmup_out);
+}
+
 my $vars1 = {
     data => [
         {

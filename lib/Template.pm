@@ -32,7 +32,7 @@ use File::Basename;
 use File::Path;
 use Scalar::Util qw(blessed);
 
-our $VERSION = '3.105';
+our $VERSION = '3.106';
 our $ERROR   = '';
 our $DEBUG   = 0;
 our $BINMODE = 0 unless defined $BINMODE;
@@ -956,7 +956,7 @@ Andy Wardley E<lt>abw@wardley.orgE<gt> L<http://wardley.org/>
 
 =head1 VERSION
 
-Template Toolkit version 3.105, released on May 24 2026.
+Template Toolkit version 3.106, released on May 25 2026.
 
 =head1 SUPPORT
 

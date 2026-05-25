@@ -1,3 +1,12 @@
+3.106 2026-05-25
+
+  [Bug Fixes]
+  - PR #441 Ship Template::Plugin::List (GH #439)
+
+  [Maintenance]
+  - PR #435 Document missing virtual methods in VMethods.pod
+  - PR #438 Add comprehensive unit tests for Template::Exception
+
 3.105 2026-05-24
 
   [Bug Fixes]

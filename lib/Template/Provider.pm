@@ -55,7 +55,7 @@ use constant NEXT    => 4;   # link to next item in cache linked list
 use constant STAT    => 5;   # Time last stat()ed
 use constant MSWin32 => $^O eq 'MSWin32';
 
-our $VERSION = '3.105';
+our $VERSION = '3.106';
 our $DEBUG   = 0 unless defined $DEBUG;
 our $ERROR   = '';
 

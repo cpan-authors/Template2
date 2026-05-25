@@ -30,7 +30,7 @@ use Config ();
 
 use constant HAS_SETLOCALE => $Config::Config{d_setlocale};
 
-our $VERSION = '3.105';
+our $VERSION = '3.106';
 our $FORMAT  = '%H:%M:%S %d-%b-%Y';    # default strftime() format
 our @LOCALE_SUFFIX = qw( .ISO8859-1 .ISO_8859-15 .US-ASCII .UTF-8 );
 

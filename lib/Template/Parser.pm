@@ -46,7 +46,7 @@ use constant ACCEPT   => 1;
 use constant ERROR    => 2;
 use constant ABORT    => 3;
 
-our $VERSION = '3.105';
+our $VERSION = '3.106';
 our $DEBUG   = 0 unless defined $DEBUG;
 our $ERROR   = '';
 

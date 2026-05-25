@@ -704,7 +704,7 @@ Andy Wardley <abw@wardley.org> [http://wardley.org/](http://wardley.org/)
 
 # VERSION
 
-Template Toolkit version 3.105, released on May 24 2026.
+Template Toolkit version 3.106, released on May 25 2026.
 
 # SUPPORT
 

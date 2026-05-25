@@ -606,16 +606,19 @@ command line utility).
 =head2 import
 
 Appends the contents of one or more other lists to the end of the
-current list.
+current list.  The C<import> method modifies the list in place and
+returns the list reference to allow chaining.  When used standalone
+(not chained), use the C<CALL> directive to suppress output of the
+list reference.
 
     [% one   = [ 1 2 3 ];
        two   = [ 4 5 6 ];
        three = [ 7 8 9 ];
-       one.import(two, three);
+       CALL one.import(two, three);
        one.join(', ');     # 1, 2, 3, 4, 5, 6, 7, 8, 9
     %]
 
-Import also allows chaining. The below syntax is equivalent.
+Import also allows chaining:
 
     [% one   = [ 1 2 3 ];
        two   = [ 4 5 6 ];

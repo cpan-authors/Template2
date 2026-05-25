@@ -507,6 +507,25 @@ I want 1 kilos of Milk,
 
 
 -- test --
+-- name list import standalone CALL --
+[% one = [ 1 2 3 ];
+   two = [ 4 5 6 ];
+   CALL one.import(two);
+   one.join(', ') %]
+-- expect --
+1, 2, 3, 4, 5, 6
+
+-- test --
+-- name list import standalone CALL multi --
+[% one   = [ 1 2 3 ];
+   two   = [ 4 5 6 ];
+   three = [ 7 8 9 ];
+   CALL one.import(two, three);
+   one.join(', ') %]
+-- expect --
+1, 2, 3, 4, 5, 6, 7, 8, 9
+
+-- test --
 [% hash = { }
    list = [ hash ]
    list.last.message = 'Hello World';

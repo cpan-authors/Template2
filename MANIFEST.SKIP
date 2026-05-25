@@ -31,7 +31,6 @@
 ^lib/Template/Arena
 ^lib/Template/Map
 ^lib/Template/Plugin/XML/View
-^lib/Template/Plugin/List
 
 # Maintainer-only scripts
 ^bin/prep

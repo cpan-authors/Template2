@@ -337,7 +337,7 @@ sub _init {
     $dlim //= MSWin32 ? qr/:(?!\\|\/)/ : qr/:/;
 
     # coerce INCLUDE_PATH to an array ref, if not already so
-    $path = [ split(/$dlim/, $path) ]
+    $path = [ split($dlim, $path) ]
         unless ref $path eq 'ARRAY';
 
     # don't allow a CACHE_SIZE 1 because it breaks things and the

@@ -379,7 +379,7 @@ sub text_dquote {
 sub hash_item {
     my ($hash, $item) = @_;
     $item //= '';
-    return if $PRIVATE && $item =~ /$PRIVATE/;
+    return if $PRIVATE && $item =~ $PRIVATE;
     $hash->{ $item };
 }
 

@@ -79,10 +79,13 @@ my $vars_with_stuff = {
 };
 
 {
-    # First call may allocate the grammar singleton -- run once to warm up
+    # Warm up: exercise all code paths so that one-time regex compilations
+    # and singleton allocations don't appear as leaks on older Perls.
     my $tt_warmup = Template->new();
     my $warmup_out = '';
     $tt_warmup->process( \$template_text, $vars_simple, \$warmup_out );
+    $warmup_out = '';
+    $tt_warmup->process( \$template_text, $vars_with_stuff, \$warmup_out );
 }
 
 # The second process call should not leak
@@ -132,7 +135,7 @@ no_leaks_ok {
 } "no leak when creating and destroying Template objects in a loop";
 
 # -----------------------------------------------------------------------
-# Test 7: Factory is properly shared and cleaned
+# Test 7: Factory is a persistent singleton shared across Grammar objects
 # -----------------------------------------------------------------------
 
 {
@@ -144,11 +147,8 @@ no_leaks_ok {
     $g2->install_factory($factory1);
 
     undef $g1;
-    # factory should still be alive because g2 holds it
-    pass("partial Grammar destruction does not crash");
-
     undef $g2;
-    # now factory should be cleaned up
+    pass("Grammar destruction with shared factory does not crash");
 }
 
 # -----------------------------------------------------------------------

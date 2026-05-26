@@ -443,7 +443,7 @@ sub _dotop {
     return undef unless defined($root) and defined($item);
 
     # or if an attempt is made to access a private member, starting _ or .
-    return undef if $PRIVATE && $item =~ /$PRIVATE/;
+    return undef if $PRIVATE && $item =~ $PRIVATE;
 
     if ($atroot || $rootref eq 'HASH') {
         # if $root is a regular HASH or a Template::Stash kinda HASH (the
@@ -607,7 +607,7 @@ sub _assign {
     return undef unless $root and defined $item;
 
     # or if an attempt is made to update a private member, starting _ or .
-    return undef if $PRIVATE && $item =~ /$PRIVATE/;
+    return undef if $PRIVATE && $item =~ $PRIVATE;
 
     if ($rootref eq 'HASH' || $atroot) {
         # if the root is a hash we set the named key

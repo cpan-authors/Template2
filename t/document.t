@@ -143,6 +143,25 @@ title: My Template Title
 -- expect --
 some output
 
+-- test --
+# GH #270: assigning to template metadata should throw, not silently fail
+[% META foo = 'bar' -%]
+[% TRY -%]
+[% template.foo = 'blech' -%]
+ERROR: no exception raised
+[% CATCH file -%]
+OK: [% error.info %]
+[% END %]
+-- expect --
+OK: template metadata item 'foo' is read-only
+
+-- test --
+# reading metadata still works after the readonly check
+[% META title = 'Read Test' version = 42 -%]
+title=[% template.title %] version=[% template.version %]
+-- expect --
+title=Read Test version=42
+
 -- stop --
 # test for component.caller and component.callers patch
 -- test --

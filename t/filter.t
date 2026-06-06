@@ -72,7 +72,7 @@ my $params = {
     'list'   => [ $a, $b, $c, $d ],
     'text'   => 'The cat sat on the mat',
     outfile  => $file,
-    stderr   => sub { $stderr },
+    stderr   => sub { my $s = $stderr; $stderr = ''; $s },
     despace  => bless(\&despace, 'anything'),
     widetext => "wide:\x{65e5}\x{672c}\x{8a9e}",
     use_rfc2732 => sub {

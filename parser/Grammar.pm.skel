@@ -98,9 +98,9 @@ $LEXTABLE = {
 
 # localise the temporary variables needed to complete lexer table
 {
-    my @tokens = qw< ( ) [ ] { } ${ $ + / ; : ? >;
+    my @tokens = qw< ( ) [ ] { } ${ $ + - / ; : ? >;
     my @cmpop  = keys %CMPOP;
-    my @binop  = qw( - * % );              # '+' and '/' above, in @tokens
+    my @binop  = qw( * % );                # '+', '-' and '/' above, in @tokens
 
     # fill lexer table, slice by slice, with reserved words and operators
     @$LEXTABLE{ @RESERVED, @cmpop, @binop, @tokens }

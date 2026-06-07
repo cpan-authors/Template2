@@ -45,6 +45,15 @@ sub new {
     return $self;
 }
 
+# An object that has some methods but is also a hash — tests
+# _assign() eval wrapping and hash fallback for missing methods
+package PartialObject;
+sub new {
+    my ($class, %args) = @_;
+    bless \%args, $class;
+}
+sub greet { return "hello from " . $_[0]->{name} }
+
 package HashObject;
 
 sub hello {
@@ -148,6 +157,7 @@ my $data = {
     getnum  => GetNumbersome->new,
     cmp_ol  => CmpOverloadObject->new(),
     substash => SubStash->new({ color => 'red', size => 'large' }),
+    partial  => PartialObject->new(name => 'widget', status => 'active'),
     clean   => sub {
         my $error = shift;
         $error =~ s/(\s*\(.*?\))?\s+at.*$//;
@@ -465,3 +475,24 @@ blue
 [% SET substash.size = 'small'; substash.size %]
 -- expect --
 small
+
+# _assign() eval wrapper: method call on blessed hashref falls back to hash
+# access when method doesn't exist (matching _dotop and XS stash behaviour)
+
+-- test --
+-- name _assign eval wrapper: read existing method --
+[% partial.greet %]
+-- expect --
+hello from widget
+
+-- test --
+-- name _assign eval wrapper: read hash key directly --
+[% partial.status %]
+-- expect --
+active
+
+-- test --
+-- name _assign eval wrapper: assign to hash key via fallback --
+[% partial.status = 'inactive'; partial.status %]
+-- expect --
+inactive

@@ -243,6 +243,7 @@ t/tiedhash.t
 t/trace_vars.t
 t/truncate_cer.t
 t/try.t
+t/ttree_config.t
 t/unicode.t
 t/unit-exception.t
 t/url.t

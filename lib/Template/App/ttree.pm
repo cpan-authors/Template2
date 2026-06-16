@@ -68,7 +68,7 @@ sub offer_create_a_sample_config_file {
     my $RCFILE = $self->_get_rc_file();
     # offer create a sample config file if it doesn't exist, unless a '-f'
     # has been specified on the command line
-    unless (-f $RCFILE or grep(/^(-f|-h|--help)$/, @ARGV) ) {
+    unless (-f $RCFILE or grep(/^(-f|--file(?:=.*)?|-h|--help)$/, @ARGV) ) {
         $self->emit_log("Do you want me to create a sample '.ttreerc' file for you?\n",
           "(file: $RCFILE)   [y/n]: ");
         my $y = <STDIN>;

@@ -153,3 +153,38 @@ item: [% item -%]
 -- expect --
 >
 <
+
+-- test --
+-- name accessor methods --
+[% USE table(alphabet, rows=5) -%]
+size: [% table.size +%]
+nrows: [% table.nrows +%]
+ncols: [% table.ncols +%]
+overlap: [% table.overlap +%]
+pad: [% table.pad +%]
+-- expect --
+size: 26
+nrows: 5
+ncols: 6
+overlap: 0
+pad: 1
+
+-- test --
+-- name accessor methods with cols --
+[% USE table(alphabet, cols=3, pad=0) -%]
+size: [% table.size +%]
+nrows: [% table.nrows +%]
+ncols: [% table.ncols +%]
+pad: [% table.pad +%]
+-- expect --
+size: 26
+nrows: 9
+ncols: 3
+pad: 0
+
+-- test --
+-- name data accessor --
+[% USE table(alphabet, rows=5) -%]
+[% table.data.join(', ') %]
+-- expect --
+a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z

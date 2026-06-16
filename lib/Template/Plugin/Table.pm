@@ -198,7 +198,7 @@ sub rows {
 #------------------------------------------------------------------------
 # cols()
 #
-# Returns all rows as a reference to a list of rows.
+# Returns all columns as a reference to a list of columns.
 #------------------------------------------------------------------------
 
 sub cols {
@@ -220,7 +220,7 @@ sub AUTOLOAD {
     return if $item eq 'DESTROY';
 
     if ($item =~ /^(?:data|size|nrows|ncols|overlap|pad)$/) {
-        return $self->{ $item };
+        return $self->{ '_' . uc $item };
     }
     else {
         return (undef, "no such table method: $item");

@@ -183,7 +183,8 @@ sub new {
     unless (ref $self->{ FACTORY }) {
         my $fclass = $self->{ FACTORY };
         $self->{ FACTORY } = $self->{ FACTORY }->new(
-             NAMESPACE => $config->{ NAMESPACE }
+             NAMESPACE          => $config->{ NAMESPACE },
+             FOREACH_LOCALISE   => $config->{ FOREACH_LOCALISE },
         )
         || return $class->error($self->{ FACTORY }->error());
     }

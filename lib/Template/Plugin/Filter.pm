@@ -27,7 +27,7 @@ use Scalar::Util 'weaken', 'isweak';
 
 
 our $VERSION = '3.106';
-our $DYNAMIC = 0 unless defined $DYNAMIC;
+our $DYNAMIC //= 0;
 
 
 sub new {

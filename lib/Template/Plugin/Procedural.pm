@@ -23,7 +23,7 @@ use warnings;
 use base 'Template::Plugin';
 
 our $VERSION = '3.106';
-our $DEBUG   = 0 unless defined $DEBUG;
+our $DEBUG   //= 0;
 our $AUTOLOAD;
 
 #------------------------------------------------------------------------

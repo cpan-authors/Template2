@@ -25,7 +25,7 @@ use base 'Template::Plugin';
 use Data::Dumper;
 
 our $VERSION = '3.106';
-our $DEBUG   = 0 unless defined $DEBUG;
+our $DEBUG   //= 0;
 our @DUMPER_ARGS = qw( Indent Pad Varname Purity Useqq Terse Freezer
                        Toaster Deepcopy Quotekeys Bless Maxdepth Sortkeys );
 our $AUTOLOAD;

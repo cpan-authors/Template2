@@ -33,9 +33,9 @@ use Template::Constants;
 use Template::Exception;
 
 our $VERSION   = '3.106';
-our $DEBUG     = 0 unless defined $DEBUG;
-our $WHILE_MAX = 1000 unless defined $WHILE_MAX;
-our $PRETTY    = 0 unless defined $PRETTY;
+our $DEBUG     //= 0;
+our $WHILE_MAX //= 1000;
+our $PRETTY    //= 0;
 our $OUTPUT    = '$output .= ';
 
 

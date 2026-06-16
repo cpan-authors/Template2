@@ -30,7 +30,7 @@ use warnings;
 use base 'Template::Base';
 
 our $VERSION  = '3.106';
-our $DEBUG    = 0 unless defined $DEBUG;
+our $DEBUG    //= 0;
 our @BASEARGS = qw( context );
 our $AUTOLOAD;
 our $MAP = {

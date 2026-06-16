@@ -24,7 +24,7 @@ use Scalar::Util qw( blessed looks_like_number );
 use Template::Filters;
 
 our $VERSION = '3.106';
-our $DEBUG   = 0 unless defined $DEBUG;
+our $DEBUG   //= 0;
 
 our $ROOT_VMETHODS = {
     inc     => \&root_inc,
@@ -559,7 +559,7 @@ sub list_reverse {
 
 sub list_grep {
     my ($list, $pattern) = @_;
-    $pattern = '' unless defined $pattern;
+    $pattern //= '';
     return [ grep /$pattern/, @$list ];
 }
 

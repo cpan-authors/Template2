@@ -35,7 +35,7 @@ use Scalar::Util qw(blessed);
 our $VERSION = '3.106';
 our $ERROR   = '';
 our $DEBUG   = 0;
-our $BINMODE = 0 unless defined $BINMODE;
+our $BINMODE //= 0;
 our $AUTOLOAD;
 
 # preload all modules if we're running under mod_perl

@@ -36,7 +36,7 @@ use constant BADGER_EXCEPTION => 'Badger::Exception';
 use constant MSWin32          => $^O eq 'MSWin32';
 
 our $VERSION = '3.106';
-our $DEBUG   = 0 unless defined $DEBUG;
+our $DEBUG   //= 0;
 our $DEBUG_FORMAT = "\n## \$file line \$line : [% \$text %] ##\n";
 our $VIEW_CLASS   = 'Template::View';
 our $AUTOLOAD;

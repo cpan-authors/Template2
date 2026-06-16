@@ -27,7 +27,7 @@ use Template::Directive;
 use Template::Exception;
 
 our $VERSION = '3.106';
-our $DEBUG   = 0 unless defined $DEBUG;
+our $DEBUG   //= 0;
 
 
 sub _init {

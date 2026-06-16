@@ -72,7 +72,7 @@ use warnings;
 use base 'Template::Stash';
 
 our $VERSION = '3.106';
-our $DEBUG   = 0 unless defined $DEBUG;
+our $DEBUG   //= 0;
 
 
 #========================================================================

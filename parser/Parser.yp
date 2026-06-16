@@ -305,9 +305,9 @@ sterm:      ident                   { $factory->ident($_[1])              }
         |   NUMBER
 ;
 
-list:       list term               { "$_[1], $_[2]"                      }
+list:       list expr               { "$_[1], $_[2]"                      }
         |   list COMMA
-        |   term
+        |   expr
 ;
 
 range:      sterm TO sterm          { $_[1] . '..' . $_[3]                }

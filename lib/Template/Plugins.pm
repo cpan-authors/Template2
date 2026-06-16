@@ -26,7 +26,7 @@ use base 'Template::Base';
 use Template::Constants;
 
 our $VERSION = '3.106';
-our $DEBUG   = 0 unless defined $DEBUG;
+our $DEBUG   //= 0;
 our $PLUGIN_BASE = 'Template::Plugin';
 our $STD_PLUGINS = {
     'assert'     => 'Template::Plugin::Assert',
@@ -88,7 +88,7 @@ sub fetch {
 
     $self->debug("fetch($name, ",
                  defined $args ? ('[ ', join(', ', @$args), ' ]') : '<no args>', ', ',
-                 defined $context ? $context : '<no context>',
+                 $context // '<no context>',
                  ')') if $self->{ DEBUG };
 
     # NOTE:

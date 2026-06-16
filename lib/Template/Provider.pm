@@ -56,17 +56,17 @@ use constant STAT    => 5;   # Time last stat()ed
 use constant MSWin32 => $^O eq 'MSWin32';
 
 our $VERSION = '3.106';
-our $DEBUG   = 0 unless defined $DEBUG;
+our $DEBUG   //= 0;
 our $ERROR   = '';
 
 # name of document class
-our $DOCUMENT = 'Template::Document' unless defined $DOCUMENT;
+our $DOCUMENT //= 'Template::Document';
 
 # maximum time between performing stat() on file to check staleness
-our $STAT_TTL = 1 unless defined $STAT_TTL;
+our $STAT_TTL //= 1;
 
 # maximum number of directories in an INCLUDE_PATH, to prevent runaways
-our $MAX_DIRS = 64 unless defined $MAX_DIRS;
+our $MAX_DIRS //= 64;
 
 # UNICODE is supported in versions of Perl from 5.007 onwards
 our $UNICODE = $] > 5.007 ? 1 : 0;
@@ -357,7 +357,7 @@ sub _init {
         local $" = ', ';
         $self->debug(
             "creating cache of ",
-            defined $size ? $size : 'unlimited',
+            $size // 'unlimited',
             " slots for [ @$path ]"
         );
     }
@@ -851,7 +851,7 @@ sub _compile {
     my ($parsedoc, $error);
 
     $self->debug("_compile($data, ",
-                 defined $compfile ? $compfile : '<no compfile>', ')')
+                 $compfile // '<no compfile>', ')')
         if $self->{ DEBUG };
 
     my $parser = $self->{ PARSER }

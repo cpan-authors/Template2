@@ -47,7 +47,7 @@ use constant ERROR    => 2;
 use constant ABORT    => 3;
 
 our $VERSION = '3.106';
-our $DEBUG   = 0 unless defined $DEBUG;
+our $DEBUG   //= 0;
 our $ERROR   = '';
 
 # The ANYCASE option can cause conflicts when reserved words are used as

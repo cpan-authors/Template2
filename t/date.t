@@ -63,7 +63,7 @@ sub time_locale {
                    : undef;
     
     # some systems expect locales to have a particular suffix
-    for my $suffix ('', @Template::Plugin::Date::LOCALE_SUFFIX) {
+    for my $suffix (@Template::Plugin::Date::LOCALE_SUFFIX, '') {
         my $try_locale = $locale.$suffix;
 	    my $setlocale = $Config{d_setlocale}
                           ? &POSIX::setlocale(&POSIX::LC_ALL, $try_locale)

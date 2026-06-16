@@ -22,6 +22,7 @@ use Template::Test;
 use Template::Config;
 use Template::Provider;
 use Cwd 'abs_path';
+use File::Spec;
 
 $^W = 1;
 my $DEBUG = grep(/-d/, @ARGV);
@@ -42,7 +43,7 @@ my $dir     = -d 't' ? 't/test/src' : 'test/src';
 my $lib     = -d 't' ? 't/test/lib' : 'test/lib';
 my $file    = 'foo';
 my $relfile = "./$dir/$file";
-my $absfile = abs_path($dir) . '/' . $file;
+my $absfile = File::Spec->catfile(abs_path($dir), $file);
 my $newfile = "$dir/foobar";
 my $vars = {
     file    => $file,
@@ -154,7 +155,7 @@ my $ttglob = Template->new || die "$Template::ERROR\n";
 ok( $ttglob, 'Created template for glob test' );
 
 # Make sure we have a multi-line template file so $/ is tested.
-my $glob_file = abs_path($dir) . '/baz';
+my $glob_file = File::Spec->catfile(abs_path($dir), 'baz');
 
 open GLOBFILE, '<', $glob_file or die "Failed to open '$absfile': $!";
 my $outstr = '';

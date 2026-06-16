@@ -295,7 +295,7 @@ sub instdir {
     my ($class, $dir) = @_;
     my $inst = $INSTDIR
         || return $class->error("no installation directory");
-    chop $inst while substr($inst,-1) eq '/';
+    $inst =~ s{[/\\]+$}{};
     $inst .= "/$dir" if $dir;
     return $inst;
 }

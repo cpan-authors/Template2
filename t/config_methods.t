@@ -7,7 +7,7 @@
 
 use strict;
 use lib qw( ./lib ../lib );
-use Test::More tests => 22;
+use Test::More tests => 24;
 
 use Template::Config;
 
@@ -115,6 +115,16 @@ my $factory = 'Template::Config';
     $Template::Config::INSTDIR = '/usr/local/tt2/';
     $result = $factory->instdir('lib');
     is($result, '/usr/local/tt2/lib', 'instdir() strips trailing slash');
+
+    # trailing backslash handling (Windows-style paths)
+    $Template::Config::INSTDIR = 'C:\\Program Files\\TT2\\';
+    $result = $factory->instdir('templates');
+    is($result, 'C:\\Program Files\\TT2/templates', 'instdir() strips trailing backslash');
+
+    # multiple trailing separators
+    $Template::Config::INSTDIR = '/usr/local/tt2///';
+    $result = $factory->instdir('lib');
+    is($result, '/usr/local/tt2/lib', 'instdir() strips multiple trailing slashes');
 }
 
 #------------------------------------------------------------------------

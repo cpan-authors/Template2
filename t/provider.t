@@ -243,12 +243,41 @@ my $ttd3 = Template->new({
 ok( $ttd3, 'dynamic path (bad) template object created' );
 
 
-my $uselist = [ 
-    ttinc  => $ttinc, 
-    ttabs  => $ttabs, 
+#------------------------------------------------------------------------
+# Test that a custom DOCUMENT class is used when creating documents
+# (GH #173: Provider was using the global $DOCUMENT instead of
+# $self->{DOCUMENT})
+#------------------------------------------------------------------------
+
+{
+    package My::Document;
+    our @ISA = ('Template::Document');
+}
+
+my $provdoc = Template::Provider->new({
+    ABSOLUTE => 1,
+    PARSER   => $parser,
+    DOCUMENT => 'My::Document',
+}) || die $Template::Provider::ERROR;
+
+is( $provdoc->{ DOCUMENT }, 'My::Document',
+    'custom DOCUMENT class stored in provider' );
+
+my ($doc_default) = $provabs->fetch($absfile);
+my ($doc_custom)  = $provdoc->fetch($absfile);
+
+is( ref $doc_default, 'Template::Document',
+    'default provider creates Template::Document instances' );
+is( ref $doc_custom, 'My::Document',
+    'custom DOCUMENT provider creates My::Document instances (GH #173)' );
+
+
+my $uselist = [
+    ttinc  => $ttinc,
+    ttabs  => $ttabs,
     ttrel  => $ttrel,
-	ttd1   => $ttd1, 
-    ttd2   => $ttd2, 
+	ttd1   => $ttd1,
+    ttd2   => $ttd2,
     ttdbad => $ttd3 ];
 
 test_expect(\*DATA, $uselist, $vars);

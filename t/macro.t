@@ -163,3 +163,13 @@ two: 2[The Title] -> one: 2[The Title]
 [% triple(10) %]
 -- expect --
 30
+
+-- test --
+-- name macro with arithmetic expressions (GH #315) --
+[% MACRO show(n) BLOCK -%]
+[% n %]
+[%- END -%]
+[% x = 5 -%]
+[% show(x) %]:[% show(x+2) %]:[% show(x-2) %]:[% show(x*2) %]:[% show(x/2) %]
+-- expect --
+5:7:3:10:2.5

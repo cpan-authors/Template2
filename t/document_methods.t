@@ -8,7 +8,7 @@
 
 use strict;
 use lib qw( ./lib ../lib );
-use Test::More tests => 29;
+use Test::More tests => 37;
 
 use File::Temp qw( tempdir );
 use Template;
@@ -117,6 +117,81 @@ my $dir = -d 't' ? 't/test' : 'test';
 
     is(scalar @warnings, 0, 'no warnings from undef/empty filename')
         or diag("warnings: @warnings");
+}
+
+#------------------------------------------------------------------------
+# write_perl_file — COMPILE_PERMS sets file permissions
+#------------------------------------------------------------------------
+
+SKIP: {
+    skip 'chmod not reliable on Windows', 5 if $^O eq 'MSWin32';
+
+    my $tmpdir = tempdir( CLEANUP => 1 );
+    my $file = "$tmpdir/perms_test.pl";
+
+    my $content = {
+        BLOCK     => q{sub { return "perms test" }},
+        DEFBLOCKS => {},
+        METADATA  => { name => 'perms_test' },
+    };
+
+    my $ok = Template::Document->write_perl_file($file, $content, 0644);
+    ok($ok, 'write_perl_file with perms returns true');
+    ok(-f $file, 'file with custom perms exists');
+
+    my $mode = (stat($file))[2] & 07777;
+    is($mode, 0644, 'file permissions set to 0644');
+
+    # without perms, file gets File::Temp default (0600)
+    my $file2 = "$tmpdir/default_perms.pl";
+    $ok = Template::Document->write_perl_file($file2, $content);
+    ok($ok, 'write_perl_file without perms returns true');
+
+    my $mode2 = (stat($file2))[2] & 07777;
+    is($mode2, 0600, 'default permissions are 0600 from File::Temp');
+}
+
+#------------------------------------------------------------------------
+# COMPILE_PERMS — flows through Template pipeline
+#------------------------------------------------------------------------
+
+SKIP: {
+    skip 'chmod not reliable on Windows', 3 if $^O eq 'MSWin32';
+
+    my $tmpdir  = tempdir( CLEANUP => 1 );
+    my $srcdir  = "$tmpdir/src";
+    my $compdir = "$tmpdir/compiled";
+    mkdir $srcdir;
+    mkdir $compdir;
+
+    # write a template source file
+    open(my $src_fh, '>', "$srcdir/hello.tt") or die "Cannot write: $!";
+    print $src_fh "Hello [% name %]";
+    close $src_fh;
+
+    my $tt = Template->new({
+        INCLUDE_PATH  => $srcdir,
+        COMPILE_DIR   => $compdir,
+        COMPILE_EXT   => '.ttc',
+        COMPILE_PERMS => 0664,
+    });
+    ok(defined $tt, 'Template with COMPILE_PERMS created');
+
+    my $output = '';
+    my $ok = $tt->process('hello.tt', { name => 'World' }, \$output);
+    ok($ok, 'template processed with COMPILE_PERMS');
+
+    # find the compiled file
+    require File::Find;
+    my @compiled;
+    File::Find::find(sub { push @compiled, $File::Find::name if /\.ttc$/ }, $compdir);
+    if (@compiled) {
+        my $mode = (stat($compiled[0]))[2] & 07777;
+        is($mode, 0664, 'compiled template has COMPILE_PERMS permissions');
+    }
+    else {
+        fail('compiled template file not found');
+    }
 }
 
 #------------------------------------------------------------------------

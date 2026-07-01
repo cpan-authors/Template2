@@ -385,8 +385,9 @@ sub _init {
     $self->{ SIZE         } = $size;
     $self->{ INCLUDE_PATH } = $path;
     $self->{ DELIMITER    } = $dlim;
-    $self->{ COMPILE_DIR  } = $cdir;
-    $self->{ COMPILE_EXT  } = $params->{ COMPILE_EXT } || '';
+    $self->{ COMPILE_DIR   } = $cdir;
+    $self->{ COMPILE_EXT   } = $params->{ COMPILE_EXT } || '';
+    $self->{ COMPILE_PERMS } = $params->{ COMPILE_PERMS };
     $self->{ ABSOLUTE     } = $params->{ ABSOLUTE } || 0;
     $self->{ RELATIVE     } = $params->{ RELATIVE } || 0;
     $self->{ TOLERANT     } = $params->{ TOLERANT } || 0;
@@ -889,7 +890,7 @@ sub _compile {
                 $error = 'cache failed to write '
                     . &File::Basename::basename($compfile)
                     . ': ' . $docclass->error()
-                    unless $docclass->write_perl_file($compfile, $parsedoc);
+                    unless $docclass->write_perl_file($compfile, $parsedoc, $self->{ COMPILE_PERMS });
             }
 
             # set atime and mtime of newly compiled file, don't bother

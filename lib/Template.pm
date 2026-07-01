@@ -637,6 +637,21 @@ compile).
 Root of directory in which compiled template files should be written
 (default: undef - don't compile).
 
+=head3 COMPILE_PERMS
+
+File permissions to set on compiled template files, specified as a
+numeric mode (e.g. C<0644>).  By default, compiled templates inherit
+the permissions set by L<File::Temp> (typically C<0600>), which can
+cause problems when multiple processes running as different users
+share the same compiled template directory.  Set this option to make
+compiled templates readable by other users or groups:
+
+    my $tt = Template->new({
+        COMPILE_DIR   => '/tmp/tt_cache',
+        COMPILE_EXT   => '.ttc',
+        COMPILE_PERMS => 0644,
+    });
+
 =head2 Plugins and Filters
 
 =head3 PLUGINS

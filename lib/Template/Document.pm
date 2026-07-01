@@ -283,7 +283,7 @@ EOF
 #------------------------------------------------------------------------
 
 sub write_perl_file {
-    my ($class, $file, $content) = @_;
+    my ($class, $file, $content, $perms) = @_;
     my ($fh, $tmpfile);
 
     return $class->error("invalid filename: " . (defined $file ? $file : ''))
@@ -303,6 +303,11 @@ sub write_perl_file {
         }
         print $fh $perlcode;
         close($fh);
+
+        if (defined $perms) {
+            chmod($perms, $tmpfile)
+                || die "failed to chmod $tmpfile: $!";
+        }
     };
     return $class->error($@) if $@;
     return rename($tmpfile, $file)
@@ -483,7 +488,7 @@ This method generate a Perl representation of the template.
         }
     });
 
-=head2 write_perl_file(\%config)
+=head2 write_perl_file($file, \%content, $perms)
 
 This method is used to write compiled Perl templates to disk.  If the
 C<COMPILE_EXT> option (to indicate a file extension for saving compiled
@@ -493,6 +498,10 @@ representation of the template as text strings containing Perl code.  We can
 write that to a file, enclosed in a small wrapper which will allow us to
 subsequently C<require()> the file and have Perl parse and compile it into a
 C<Template::Document>.  Thus we have persistence of compiled templates.
+
+The optional C<$perms> argument specifies the file permissions to set on the
+compiled template file (e.g. C<0644>).  If not specified, the file retains
+the default permissions set by L<File::Temp> (typically C<0600>).
 
 =head1 INTERNAL FUNCTIONS
 

@@ -622,7 +622,7 @@ sub _assign {
     elsif ($rootref eq 'ARRAY' && $item =~ /^-?\d+$/) {
             # or set a list item by index number
             return ($root->[$item] = $value)                    ## RETURN
-                unless $default && $root->{ $item };
+                unless $default && $root->[$item];
     }
     elsif (UNIVERSAL::isa($root, 'UNIVERSAL')) {
         # try to call the item as a method of an object
@@ -641,7 +641,7 @@ __END__
 
 =head1 NAME
 
-Template::Stash::Context - Experimetal stash allowing list/scalar context definition
+Template::Stash::Context - Experimental stash allowing list/scalar context definition
 
 =head1 SYNOPSIS
 

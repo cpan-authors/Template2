@@ -55,6 +55,16 @@ match( $stash->get('baz(50).biz'), '<undef>' );   # args are ignored
 $stash->set( 'bar.buz' => 100 );
 match( $stash->get('bar.buz'), 100 );
 
+# test DEFAULT assignment on array elements
+my $list = [10, 20, 30];
+$stash->set('mylist', $list);
+# default=1: should NOT overwrite existing value
+$stash->set([ 'mylist', 0, '0', 0 ], 'REPLACED', 1);
+match( $stash->get([ 'mylist', 0, '0', 0 ]), 10 );
+# default=1: should set undefined element
+$stash->set([ 'mylist', 0, '3', 0 ], 'NEW', 1);
+match( $stash->get([ 'mylist', 0, '3', 0 ]), 'NEW' );
+
 test_expect(\*DATA, { STASH => $stash });
 
 __DATA__
@@ -73,4 +83,27 @@ one two three
 -- expect --
 CODE
 
+-- test --
+-- name DEFAULT does not overwrite existing array element --
+[% mylist = [ 'alpha', 'beta', 'gamma' ];
+   DEFAULT mylist.0 = 'REPLACED';
+   mylist.0 %]
+-- expect --
+alpha
+
+-- test --
+-- name DEFAULT sets undefined array element --
+[% mylist = [ 'alpha', 'beta', 'gamma' ];
+   DEFAULT mylist.5 = 'NEW';
+   mylist.5 %]
+-- expect --
+NEW
+
+-- test --
+-- name DEFAULT does not overwrite existing hash value --
+[% myhash = { x => 'original' };
+   DEFAULT myhash.x = 'REPLACED';
+   myhash.x %]
+-- expect --
+original
 

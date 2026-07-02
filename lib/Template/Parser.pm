@@ -804,7 +804,7 @@ sub add_metadata {
 sub location {
     my $self = shift;
     return "\n" unless $self->{ FILE_INFO };
-    my $line = ${ $self->{ LINE } };
+    my $line = delete $self->{ _chunk_line } // ${ $self->{ LINE } };
     my $info = $self->{ FILEINFO }->[-1];
     my $file = $info->{ path } || $info->{ name }
         || '(unknown template)';
@@ -859,6 +859,7 @@ sub _parse {
     $self->{ LINE   } = \$line;
     $self->{ FILE   } = $info->{ name };
     $self->{ INPERL } = \$inperl;
+    $self->{ _block_line_stack } = [];
 
     $status = CONTINUE;
     my $in_string = 0;

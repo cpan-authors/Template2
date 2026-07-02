@@ -109,18 +109,20 @@ sub template {
 
         # now it's time to ask the providers, so we look to see if any
         # prefix is specified to indicate the desired provider set.
-        if (MSWin32) {
-            # let C:/foo through
-            $prefix = $1 if $shortname =~ s/^(\w{2,})://o;
-        }
-        else {
-            $prefix = $1 if $shortname =~ s/^(\w+)://;
-        }
+        if (%{ $self->{ PREFIX_MAP } }) {
+            if (MSWin32) {
+                # let C:/foo through
+                $prefix = $1 if $shortname =~ s/^(\w{2,})://o;
+            }
+            else {
+                $prefix = $1 if $shortname =~ s/^(\w+)://;
+            }
 
-        if (defined $prefix) {
-            $providers = $self->{ PREFIX_MAP }->{ $prefix }
-            || return $self->throw( Template::Constants::ERROR_FILE,
-                                    "no providers for template prefix '$prefix'");
+            if (defined $prefix) {
+                $providers = $self->{ PREFIX_MAP }->{ $prefix }
+                || return $self->throw( Template::Constants::ERROR_FILE,
+                                        "no providers for template prefix '$prefix'");
+            }
         }
     }
     $providers = $self->{ PREFIX_MAP }->{ default }
@@ -436,12 +438,14 @@ sub insert {
     FILE: foreach $file (@$files) {
         my $name = $file;
 
-        if (MSWin32) {
-            # let C:/foo through
-            $prefix = $1 if $name =~ s/^(\w{2,})://o;
-        }
-        else {
-            $prefix = $1 if $name =~ s/^(\w+)://;
+        if (%{ $self->{ PREFIX_MAP } }) {
+            if (MSWin32) {
+                # let C:/foo through
+                $prefix = $1 if $name =~ s/^(\w{2,})://o;
+            }
+            else {
+                $prefix = $1 if $name =~ s/^(\w+)://;
+            }
         }
 
         if (defined $prefix) {

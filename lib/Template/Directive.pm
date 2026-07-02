@@ -669,7 +669,7 @@ sub try {
     }
     $catchblock .= "\$_tt_error = 0;";
     $catchblock = pad($catchblock, 3) if $PRETTY;
-    if ($default) {
+    if (defined $default) {
         $default = pad($default, 1) if $PRETTY;
         $default = "else {\n    # DEFAULT\n$default\n    \$_tt_error = '';\n}";
     }

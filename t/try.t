@@ -644,3 +644,33 @@ caught food: cabbage
 -- expect --
 error: file error - no_such_file: not found
 
+-- test --
+-- name empty CATCH block catches and suppresses --
+before [% TRY; THROW test "boom"; CATCH; END %] after
+-- expect --
+before  after
+
+-- test --
+-- name empty CATCH block with FINAL --
+[% TRY; THROW test "oops"; CATCH; FINAL; "done"; END %]
+-- expect --
+done
+
+-- test --
+-- name empty typed CATCH block does not suppress others --
+[% TRY; THROW food "pizza"; CATCH food; CATCH; END %]
+-- expect --
+
+
+-- test --
+-- name empty CATCH with multiline TRY body --
+[% TRY;
+     x = 10;
+     THROW test "fail";
+   CATCH;
+   END;
+   "ok";
+%]
+-- expect --
+ok
+

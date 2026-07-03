@@ -340,10 +340,8 @@ sub _init {
     $path = [ split(/$dlim/, $path) ]
         unless ref $path eq 'ARRAY';
 
-    # don't allow a CACHE_SIZE 1 because it breaks things and the
-    # additional checking isn't worth it
-    $size = 2
-        if defined $size && ($size == 1 || $size < 0);
+    $size = 0
+        if defined $size && $size < 0;
 
     if (defined ($debug = $params->{ DEBUG })) {
         $self->{ DEBUG } = $debug & ( Template::Constants::DEBUG_PROVIDER
@@ -793,16 +791,19 @@ sub _store {
 
         # remove entry from tail of list
         $slot = $self->{ TAIL };
-        $slot->[ PREV ]->[ NEXT ] = undef;
-        $self->{ TAIL } = $slot->[ PREV ];
+        if ($slot->[ PREV ]) {
+            $slot->[ PREV ]->[ NEXT ] = undef;
+            $self->{ TAIL } = $slot->[ PREV ];
+        }
 
         # remove name lookup for old node
         delete $self->{ LOOKUP }->{ $slot->[ NAME ] };
 
         # add modified node to head of list
         $head = $self->{ HEAD };
-        $head->[ PREV ] = $slot if $head;
-        @$slot = ( undef, $name, $data, $load, $head, time );
+        $head->[ PREV ] = $slot if $head && $head != $slot;
+        @$slot = ( undef, $name, $data, $load,
+                   ($head && $head != $slot ? $head : undef), time );
         $self->{ HEAD } = $slot;
 
         # add name lookup for new node

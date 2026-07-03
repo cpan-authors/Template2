@@ -560,7 +560,7 @@ sub interpolate_text {
         }
         # $variable reference
         if ($var) {
-            $line += $dir =~ tr/\n/ /;
+            $line += $dir =~ tr/\n//;
             push(@tokens, [ $dir, $line, $self->tokenise_directive($var) ]);
         }
         # other '$' reference - treated as text

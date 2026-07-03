@@ -68,6 +68,15 @@ sub new {
 
     # evaluate Perl code in $block to create sub-routine reference if necessary
     unless (ref $block) {
+        # Security: block eval of string BLOCK when called as an instance method.
+        # The template stash exposes 'template' and 'component' as Document objects,
+        # so template authors can call template.new({BLOCK => '...'}) to execute
+        # arbitrary Perl code even when EVAL_PERL is disabled. The compilation
+        # pipeline always calls new() as a class method, so instance calls with
+        # string BLOCKs are never legitimate. (GH #245)
+        return $class->error("cannot eval BLOCK in instance method call")
+            if ref $class;
+
         local $SIG{__WARN__} = \&catch_warnings;
         $COMPERR = '';
 
@@ -88,7 +97,11 @@ sub new {
         map {
             ref($_)
                 ? $_
-                : ( /(.*)/s && eval($1) or return $class->error($@) )
+                : do {
+                    return $class->error("cannot eval BLOCK in instance method call")
+                        if ref $class;
+                    /(.*)/s && eval($1) or return $class->error($@)
+                }
         } values %$defblocks;
 
     bless {
